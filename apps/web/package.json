@@ -13,6 +13,7 @@
     "shadcn": "bunx shadcn-svelte@latest add $@ -c ../../packages/ui"
   },
   "dependencies": {
+    "@convex-dev/better-auth": "^0.10.10",
     "@lucid/backend": "workspace:*",
     "@lucid/env": "workspace:*",
     "@lucid/ui": "workspace:*",
