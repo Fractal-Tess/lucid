@@ -7,7 +7,7 @@
 - [x] Set up Turborepo with Bun
 - [x] Configure shared UI package with shadcn-svelte
 - [x] Set up Convex project + schema
-- [ ] Integrate Better Auth with Convex adapter
+- [x] Integrate Better Auth with Convex adapter
 - [ ] Build Docling Python microservice
 - [ ] Create Dockerfile for Docling service
 - [ ] Implement LLM Router with OpenRouter

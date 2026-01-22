@@ -11,6 +11,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@convex-dev/better-auth": "^0.10.10",
+    "better-auth": "1.4.9",
     "convex": "catalog:",
     "dotenv": "catalog:",
     "zod": "catalog:"
