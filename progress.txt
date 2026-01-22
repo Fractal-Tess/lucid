@@ -33,3 +33,168 @@
   - Created auth.config.test.ts and auth.test.ts with 9 tests
   - All 33 tests pass
 - **Commit**: Pending
+
+### Completed: Build Docling Python microservice
+- **Action**: Completed
+- **Details**:
+  - Created apps/docling directory for Python FastAPI microservice
+  - Implemented main.py with /extract and /health endpoints
+  - Added file validation (PDF, DOC, DOCX, max 20MB)
+  - Implemented document text extraction using Docling library
+  - Added section extraction with text truncation (1000 chars)
+  - Created Dockerfile with Python 3.11-slim base image
+  - Added requirements.txt with all dependencies
+  - Created pyproject.toml for proper Python project configuration
+  - Wrote comprehensive test suite with 14 tests covering:
+    - Health endpoint
+    - File type validation
+    - File size validation
+    - Successful extraction
+    - Section extraction
+    - Metadata extraction
+    - Error handling
+    - Text truncation
+- **Commit**: Pending
+
+### Completed: Implement LLM Router with OpenRouter
+- **Action**: Completed
+- **Details**:
+  - Created packages/ai directory with TypeScript package structure
+  - Implemented router.config.ts with:
+    - ModelConfig interface for OpenRouter models
+    - RoutingRule interface for task-based routing
+    - RouterConfig with classifier, models, fallback chain, and rules
+    - Default configuration with DeepSeek v3 and Claude models
+    - getModelForTask function with complexity-based routing
+  - Implemented router.ts with:
+    - LLMRouter class for OpenRouter API integration
+    - Automatic fallback chain on model failures
+    - Support for model override
+    - Usage statistics tracking
+    - Complete helper method for simple completions
+    - createRouter factory function with environment variable support
+  - Implemented classifier.ts with:
+    - AI-based complexity classification using the router
+    - Heuristic-based estimateComplexity function (no API call)
+    - Factors: content length, technical terms, sentence complexity, math notation
+  - Created comprehensive test suite with 59 tests covering:
+    - Router configuration validation
+    - Model routing logic
+    - Fallback behavior
+    - API integration
+    - Complexity estimation
+  - Tested live with OpenRouter API - all routing scenarios working correctly
+- **Commit**: Pending
+
+### Completed: Set up Vitest and Playwright for testing
+- **Action**: Completed
+- **Details**:
+  - Vitest already configured in packages/backend and packages/ai
+  - Playwright already configured in packages/ui
+  - All 92 tests pass across all packages
+- **Commit**: Pending
+
+### Completed: Configure Docker Compose and environment variables
+- **Action**: Completed
+- **Details**:
+  - Created docker-compose.yml for Dokploy deployment with:
+    - web service (SvelteKit app on port 3000)
+    - docling service (Python FastAPI on port 8000)
+    - Health checks and restart policies
+    - lucid-network for service communication
+  - Created apps/web/Dockerfile with:
+    - Multi-stage build (deps, builder, runner)
+    - Bun runtime for optimal performance
+    - Non-root user for security
+    - Production-ready configuration
+  - Created .env.example with all required environment variables:
+    - CONVEX_DEPLOYMENT, CONVEX_URL
+    - BETTER_AUTH_SECRET
+    - OPENROUTER_API_KEY
+    - DOCLING_URL
+    - PUBLIC_SITE_URL, PUBLIC_APP_URL
+- **Commit**: Pending
+
+### Completed: Organization System CRUD (Subject Groups, Subjects, Folders)
+- **Action**: Completed
+- **Details**:
+  - Created packages/backend/convex/functions/subjectGroups.ts with:
+    - list: Query all groups for a user (sorted by order)
+    - get: Query single group by ID
+    - create: Create new group with auto-incrementing order
+    - update: Update name, description, color
+    - remove: Delete group and unlink associated subjects
+    - reorder: Reorder groups via ordered ID array
+  - Created packages/backend/convex/functions/subjects.ts with:
+    - list: Query all subjects for a user
+    - listByGroup: Query subjects in a specific group
+    - listUngrouped: Query subjects without a group
+    - get: Query single subject by ID
+    - create: Create subject with optional group, icon, color
+    - update: Update subject properties including group
+    - remove: Delete subject and all associated folders, documents, generations
+    - reorder: Reorder subjects within a group
+    - moveToGroup: Move subject to different group
+  - Created packages/backend/convex/functions/folders.ts with:
+    - listBySubject: Query all folders in a subject
+    - listByParent: Query child folders of a parent
+    - listRootFolders: Query top-level folders in a subject
+    - get: Query single folder by ID
+    - getWithPath: Query folder with full path to root
+    - create: Create folder with optional parent (nesting support)
+    - update: Update folder name
+    - remove: Delete folder and reassign documents
+    - reorder: Reorder folders at same level
+    - move: Move folder to different parent (with cycle detection)
+  - All functions synced to apps/web/src/convex/functions/
+  - 44 backend tests pass
+- **Commit**: Pending
+
+### Completed: File Tree UI Component with Drag & Drop
+- **Action**: Completed
+- **Details**:
+  - Created packages/ui/src/lib/components/ui/file-tree/ with:
+    - types.ts: FileNode, FileNodeType, FileTreeData interfaces
+    - ctx.svelte.ts: Svelte 5 context for tree state management
+    - file-tree-node.svelte: Recursive node component with drag/drop
+    - file-tree.svelte: Root component with event handlers
+    - index.ts: Export all components and types
+  - Features implemented:
+    - Hierarchical display (group → subject → folder → document)
+    - Drag & drop reordering with position indicators (before/after/inside)
+    - Collapsible/expandable tree nodes
+    - Different icons for each node type (lucide-svelte)
+    - Keyboard navigation (Enter/Space)
+    - Empty state handling
+    - Bindable selectedId and expandedIds props
+  - User added 57 shadcn-svelte components to packages/ui
+- **Commit**: Pending
+
+### Completed: Document Management System
+- **Action**: Completed
+- **Details**:
+  - Created packages/backend/convex/functions/documents.ts with:
+    - list, listBySubject, listByFolder: Query documents
+    - get: Get single document by ID
+    - getDownloadUrl: Get signed URL for file download
+    - generateUploadUrl: Generate upload URL for Convex storage
+    - create: Create document with file validation (type, size)
+    - update: Update document name and folder
+    - remove: Delete document and associated file from storage
+    - updateStatus: Update processing status
+    - moveToFolder: Move document between folders
+  - Created packages/backend/convex/workflows/processDocument.ts with:
+    - processDocument: Action that fetches file, calls Docling, updates status
+    - retryProcessing: Retry failed document processing
+    - getDocumentForProcessing: Query for document data
+    - updateDocumentStatus: Mutation to update document status
+  - Created packages/ui/src/lib/components/ui/document-upload/ with:
+    - DocumentUpload component with drag & drop zone
+    - File type validation (PDF, DOC, DOCX)
+    - File size validation (max 20MB)
+    - Progress bar during upload
+    - Status indicators (pending, uploading, success, error)
+    - Remove file functionality
+    - Multiple file support
+    - Keyboard accessibility
+- **Commit**: Pending

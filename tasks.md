@@ -8,36 +8,36 @@
 - [x] Configure shared UI package with shadcn-svelte
 - [x] Set up Convex project + schema
 - [x] Integrate Better Auth with Convex adapter
-- [ ] Build Docling Python microservice
-- [ ] Create Dockerfile for Docling service
-- [ ] Implement LLM Router with OpenRouter
-- [ ] Configure router rules (config-driven)
-- [ ] Set up Vitest for unit testing
-- [ ] Set up Playwright for e2e testing
-- [ ] Configure Docker Compose for Dokploy
-- [ ] Set up environment variables
+- [x] Build Docling Python microservice
+- [x] Create Dockerfile for Docling service
+- [x] Implement LLM Router with OpenRouter
+- [x] Configure router rules (config-driven)
+- [x] Set up Vitest for unit testing
+- [x] Set up Playwright for e2e testing
+- [x] Configure Docker Compose for Dokploy
+- [x] Set up environment variables
 
 ## Phase 1: MVP - Core Study Tools
 
 ### Organization System
 
-- [ ] Subject Groups CRUD (create, read, update, delete)
-- [ ] Subjects CRUD with icons/colors
-- [ ] Folders CRUD with nesting support
-- [ ] Drag & drop reordering
-- [ ] File tree UI component
+- [x] Subject Groups CRUD (create, read, update, delete)
+- [x] Subjects CRUD with icons/colors
+- [x] Folders CRUD with nesting support
+- [x] Drag & drop reordering
+- [x] File tree UI component
 
 ### Document Management
 
-- [ ] Document upload UI (drag & drop)
-- [ ] File type validation (PDF, DOC, DOCX)
-- [ ] File size validation (max 20MB)
-- [ ] Upload progress indicator
-- [ ] Convex file storage integration
-- [ ] Document download functionality
-- [ ] Document processing workflow (Convex → Docling)
-- [ ] Processing status indicators
-- [ ] Error handling for failed processing
+- [x] Document upload UI (drag & drop)
+- [x] File type validation (PDF, DOC, DOCX)
+- [x] File size validation (max 20MB)
+- [x] Upload progress indicator
+- [x] Convex file storage integration
+- [x] Document download functionality
+- [x] Document processing workflow (Convex → Docling)
+- [x] Processing status indicators
+- [x] Error handling for failed processing
 
 ### Flashcards
 
