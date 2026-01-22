@@ -33,11 +33,7 @@
         { pkgs }:
         {
           default = pkgs.mkShell {
-            shellHook = ''
-              echo "uv - $(${pkgs.uv}/bin/uv --version)"
-            '';
             packages = with pkgs; [
-              uv
               bun
             ];
 
