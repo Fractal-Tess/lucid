@@ -2,11 +2,11 @@
 
 ## Setup & Infrastructure
 
-- [ ] User provides SvelteKit/shadcn-svelte/Turborepo template
-- [ ] Set up SvelteKit project structure
-- [ ] Set up Turborepo with Bun
-- [ ] Configure shared UI package with shadcn-svelte
-- [ ] Set up Convex project + schema
+- [x] User provides SvelteKit/shadcn-svelte/Turborepo template
+- [x] Set up SvelteKit project structure
+- [x] Set up Turborepo with Bun
+- [x] Configure shared UI package with shadcn-svelte
+- [x] Set up Convex project + schema
 - [ ] Integrate Better Auth with Convex adapter
 - [ ] Build Docling Python microservice
 - [ ] Create Dockerfile for Docling service

@@ -58,6 +58,7 @@
         "@lucid/config": "workspace:*",
         "@types/node": "^25.0.10",
         "typescript": "catalog:",
+        "vitest": "^4.0.17",
       },
     },
     "packages/config": {

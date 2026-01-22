@@ -1,0 +1,13 @@
+# Lucid Development Progress
+
+## 2026-01-22
+
+### Completed: Set up Convex project + schema
+- **Action**: Completed
+- **Details**:
+  - Implemented full Convex schema with 22 tables from spec/schema.md
+  - Tables include: users, subjectGroups, subjects, folders, documents, generations, flashcardItems, quizItems, notesContent, summaryContent, studySessions, sharedDecks, chatMessages, solveQuestions, dailyStats, streaks, studyGuideContent, recordings, notes, practiceProblems, conceptMapContent, pomodoroSessions
+  - Added Vitest configuration to backend package
+  - Created schema.test.ts with 24 tests validating all tables
+  - All tests pass
+- **Commit**: pending
