@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - CONVEX_URL=${CONVEX_URL}
+      - BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+      - PUBLIC_SITE_URL=${PUBLIC_SITE_URL}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - DOCLING_URL=http://docling:8000
+    depends_on:
+      docling:
+        condition: service_healthy
+    restart: unless-stopped
+
+  docling:
+    build:
+      context: apps/docling
+    ports:
+      - "8000:8000"
+    environment:
+      - MAX_WORKERS=4
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+networks:
+  default:
+    name: lucid-network
