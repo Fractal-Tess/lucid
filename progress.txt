@@ -197,4 +197,22 @@
     - Remove file functionality
     - Multiple file support
     - Keyboard accessibility
-- **Commit**: Pending
+- **Commit**: cf253cf
+
+### Completed: Configuration and dependency updates
+- **Action**: Completed
+- **Timestamp**: 2026-01-22 23:54:15
+- **Details**:
+  - Updated .gitignore to exclude .sisyphus and .direnv directories
+  - Added .envrc files for direnv support (root and apps/docling)
+  - Added Nix flake configuration (root and docling service)
+  - Fixed TypeScript errors in router tests (non-null assertions)
+  - Updated dependencies and generated Convex types
+  - Updated web app auth and layout components
+  - Added subjectGroups test file
+  - Updated AGENTS.md documentation
+- **Commits**: 
+  - 362ab58: chore: update .gitignore and add direnv configs
+  - 8397255: chore: add Nix flake configuration
+  - 8196ab1: chore: update dependencies and generated types
+  - cf253cf: chore: update generated Convex types and flake.nix
