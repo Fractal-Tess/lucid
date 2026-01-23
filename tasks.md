@@ -57,7 +57,7 @@
 - [x] Multiple choice quiz UI
 - [x] Answer validation + scoring
 - [x] Explanation display for wrong answers
-- [ ] Quiz results summary
+- [x] Quiz results summary
 - [ ] Quiz editor (add/edit/delete questions)
 
 ### Summaries

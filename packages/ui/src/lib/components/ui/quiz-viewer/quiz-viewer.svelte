@@ -1,8 +1,9 @@
 <script lang="ts">
 	import type { QuizItem, QuizAnswer, QuizResults } from "./types.js";
-	import { ChevronLeft, ChevronRight, RotateCcw } from "@lucide/svelte";
+	import { ChevronLeft, ChevronRight } from "@lucide/svelte";
 	import { Button } from "@lib/components/ui/button/index.js";
 	import { cn } from "@lib/utils.js";
+	import QuizResultsSummary from "@lib/components/ui/quiz-results-summary/index.js";
 
 	let {
 		questions = [],
@@ -22,6 +23,18 @@
 	let isAnswered = $state(false);
 	let quizComplete = $state(false);
 	let answeredQuestions = $state<Set<number>>(new Set());
+	let startTime = $state<number | null>(null);
+	let duration = $state(0);
+
+	$effect(() => {
+		if (questions.length > 0 && !startTime && !quizComplete) {
+			startTime = Date.now();
+		}
+
+		if (quizComplete && startTime) {
+			duration = Math.floor((Date.now() - startTime) / 1000);
+		}
+	});
 
 	let currentQuestion = $derived(questions[currentIndex] ?? null);
 	let hasPrev = $derived(currentIndex > 0);
@@ -101,6 +114,8 @@
 		quizComplete = false;
 		answers = [];
 		answeredQuestions.clear();
+		startTime = Date.now();
+		duration = 0;
 	}
 
 	function getOptionVariant(index: number): "default" | "outline" | "ghost" {
@@ -154,27 +169,14 @@
 			<p class="text-muted-foreground">No questions to display</p>
 		</div>
 	{:else if quizComplete}
-		<div
+		<QuizResultsSummary
 			data-testid="quiz-results"
-			class="flex flex-col items-center gap-6 rounded-lg border p-8 text-center"
-		>
-			<h2 class="text-2xl font-bold">Quiz Complete!</h2>
-			<p class="text-4xl font-bold text-primary">
-				Your Score: {score.score} / {score.total}
-			</p>
-			<div class="flex gap-8 text-muted-foreground">
-				<span class="text-green-600">
-					{score.correctAnswers.length} correct
-				</span>
-				<span class="text-red-600">
-					{score.wrongAnswers.length} incorrect
-				</span>
-			</div>
-			<Button data-testid="restart-button" onclick={restartQuiz} variant="outline">
-				<RotateCcw class="mr-2 size-4" />
-				Restart Quiz
-			</Button>
-		</div>
+			{questions}
+			results={score}
+			duration={duration}
+			showQuestionReview
+			onRetakeQuiz={restartQuiz}
+		/>
 	{:else if currentQuestion}
 		<div data-testid="quiz-container" class="w-full max-w-3xl">
 			<div class="mb-6 flex items-center justify-between">

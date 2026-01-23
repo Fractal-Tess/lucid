@@ -2,6 +2,28 @@
 
 ## 2026-01-23
 
+### Completed: Quiz results summary
+- **Action**: Completed
+- **Details**:
+  - Created QuizResultsSummary component with detailed quiz result display
+  - Features implemented:
+    - Overall score display with percentage
+    - Performance labels based on score (Excellent!, Great job!, etc.)
+    - Correct/incorrect answer counts with icons
+    - Duration tracking and display
+    - Question-by-question review section
+    - Expandable question review with full details
+    - Shows selected vs correct answers
+    - Displays explanations when available
+    - Retake Quiz and Export Results buttons
+  - Added types and interfaces for component
+  - Created demo route at /quiz-results-summary for testing
+  - Updated QuizViewer to use QuizResultsSummary for results display
+  - Added duration tracking to QuizViewer component
+  - Wrote comprehensive unit tests for QuizResultsSummary
+  - Build succeeds without errors
+- **Commit**: pending
+
 ### Completed: Answer validation + scoring
 - **Action**: Completed
 - **Details**:
