@@ -62,8 +62,8 @@
 
 ### Summaries
 
-- [ ] Summary generation from documents
-- [ ] AI prompt for summarization
+- [x] Summary generation from documents
+- [x] AI prompt for summarization
 - [ ] Section-based summary display
 - [ ] Summary text editor
 
