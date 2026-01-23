@@ -211,8 +211,51 @@
   - Updated web app auth and layout components
   - Added subjectGroups test file
   - Updated AGENTS.md documentation
-- **Commits**: 
+- **Commits**:
   - 362ab58: chore: update .gitignore and add direnv configs
   - 8397255: chore: add Nix flake configuration
   - 8196ab1: chore: update dependencies and generated types
   - cf253cf: chore: update generated Convex types and flake.nix
+
+## 2026-01-23
+
+### Completed: Flashcard Generation from Documents
+- **Action**: Completed
+- **Details**:
+  - Created packages/backend/convex/functions/generations.ts with:
+    - list: Query all generations for a user
+    - listBySubject: Query generations by subject
+    - listByType: Query generations filtered by type (flashcards, quiz, notes, etc.)
+    - get: Get single generation by ID
+    - create: Create generation with source document validation
+    - update: Update generation name
+    - updateStatus: Update generation status (generating, ready, failed)
+    - remove: Delete generation and all associated content (flashcards, quiz items, etc.)
+  - Created packages/backend/convex/functions/flashcardItems.ts with:
+    - listByGeneration: Query flashcards for a generation
+    - getDueCards: Query cards due for review (SM-2 algorithm)
+    - get: Get single flashcard by ID
+    - create: Create flashcard with SM-2 defaults (easeFactor: 2.5, interval: 0, repetitions: 0)
+    - createBatch: Create multiple flashcards with sequential order
+    - update: Update question and answer
+    - recordReview: Apply SM-2 algorithm after user reviews card
+    - reorder: Reorder flashcards within a generation
+    - remove: Delete flashcard
+    - calculateSM2: Exported pure function for SM-2 algorithm calculations
+  - Created packages/backend/convex/workflows/generateFlashcards.ts with:
+    - generateFlashcards: Action that calls OpenRouter API (DeepSeek model) to generate flashcards from document text
+    - retryGeneration: Retry failed flashcard generations
+    - getDocumentsForGeneration: Internal query for document data
+    - updateGenerationStatus: Internal mutation for status updates
+    - createFlashcardItems: Internal mutation to batch create flashcards
+    - JSON parsing with markdown code block handling
+    - Zod schema validation for AI responses
+  - Created comprehensive integration test suite using convex-test:
+    - generations.test.ts: 15 tests for generation CRUD operations
+    - flashcardItems.test.ts: 24 tests (9 unit tests for SM-2, 15 integration tests)
+    - generateFlashcards.test.ts: 27 tests (16 unit tests for validation, 11 integration tests)
+  - Set up convex-test for monorepo with modules configuration (test.setup.ts)
+  - Updated vitest.config.ts with server.deps.inline for convex-test
+  - Updated convex/tsconfig.json to exclude test files
+  - All 110 tests pass, Convex build succeeds
+- **Commit**: Pending

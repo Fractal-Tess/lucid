@@ -41,12 +41,12 @@
 
 ### Flashcards
 
-- [ ] Flashcard generation from documents
-- [ ] AI prompt for flashcard extraction
+- [x] Flashcard generation from documents
+- [x] AI prompt for flashcard extraction
 - [ ] Flashcard viewer UI (flip cards)
 - [ ] Keyboard shortcuts (space, arrows)
-- [ ] SM-2 spaced repetition algorithm
-- [ ] "Cards due today" queue
+- [x] SM-2 spaced repetition algorithm
+- [x] "Cards due today" queue
 - [ ] Flashcard visual editor (add/edit/delete/reorder)
 - [ ] Rating UI (1-5 difficulty)
 
