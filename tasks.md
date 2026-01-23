@@ -58,7 +58,7 @@
 - [x] Answer validation + scoring
 - [x] Explanation display for wrong answers
 - [x] Quiz results summary
-- [ ] Quiz editor (add/edit/delete questions)
+  - [x] Quiz editor (add/edit/delete questions)
 
 ### Summaries
 

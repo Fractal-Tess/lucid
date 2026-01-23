@@ -9,11 +9,14 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as functions_dailyStats from "../functions/dailyStats.js";
 import type * as functions_documents from "../functions/documents.js";
 import type * as functions_flashcardItems from "../functions/flashcardItems.js";
 import type * as functions_folders from "../functions/folders.js";
 import type * as functions_generations from "../functions/generations.js";
 import type * as functions_quizItems from "../functions/quizItems.js";
+import type * as functions_streaks from "../functions/streaks.js";
+import type * as functions_studySessions from "../functions/studySessions.js";
 import type * as functions_subjectGroups from "../functions/subjectGroups.js";
 import type * as functions_subjects from "../functions/subjects.js";
 import type * as healthCheck from "../healthCheck.js";
@@ -30,11 +33,14 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  "functions/dailyStats": typeof functions_dailyStats;
   "functions/documents": typeof functions_documents;
   "functions/flashcardItems": typeof functions_flashcardItems;
   "functions/folders": typeof functions_folders;
   "functions/generations": typeof functions_generations;
   "functions/quizItems": typeof functions_quizItems;
+  "functions/streaks": typeof functions_streaks;
+  "functions/studySessions": typeof functions_studySessions;
   "functions/subjectGroups": typeof functions_subjectGroups;
   "functions/subjects": typeof functions_subjects;
   healthCheck: typeof healthCheck;
