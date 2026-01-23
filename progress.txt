@@ -4,135 +4,153 @@
 00003| ## Codebase Patterns
 00004| - Testing: Use `convex-test` for integration testing of Convex functions with a mock database.
 00005| - Workflows: Convex actions (in `workflows/`) handle external API calls (like LLMs) and coordinate mutations.
-00006| 
-00007| ## 2026-01-23
+00006| - UI Components: Shared UI components reside in `packages/ui/src/lib/components/ui`. Use `export * from "./types.js"` in `index.ts`.
+00007| - Component Testing: Create demo routes in `packages/ui/src/routes/<component-name>` for manual and e2e testing.
 00008| 
-00009| ### Completed: Quiz editor
-00010| - **Action**: Completed
-00011| - **Details**:
-00012|   - Created QuizEditor component with full CRUD functionality for quiz questions
-00013|   - Features implemented:
-00014|     - Add new questions with 2-4 answer options
-00015|     - Edit existing questions (question text, options, correct answer, explanation)
-00016|     - Delete questions
-00017|     - Drag and drop reordering
-00018|     - Visual indicator for correct answer (green checkmark)
-00019|     - Optional explanation field for each question
-00020|     - Form validation (requires question text and at least 2 options)
-00021|     - Add/remove options dynamically (2-4 options)
-00022|     - Radio button selection for correct answer
-00023|     - Empty state when no questions exist
-00024|   - Added types and interfaces: EditableQuizItem, QuizEditorEvents
-00025|   - Created demo route at /quiz-editor for testing with sample data
-00026|   - Wrote 20 comprehensive e2e tests using Playwright:
-00027|     - Display list of questions
-00028|     - Add question form
-00029|     - Create new question
-00030|     - Form validation
-00031|     - Add/remove options
-00032|     - Cancel add/edit operations
-00033|     - Update question content
-00034|     - Update explanation
-00035|     - Delete questions
-00036|     - Drag handles for reordering
-00037|     - Display question text, options, correct answer, explanation
-00038|     - Save button state validation
-00039|     - Empty state display
-00040|   - Follows existing FlashcardEditor patterns for consistency
-00041|   - Build succeeds with only minor Svelte warnings (accessibility labels, self-closing divs)
-00042| - **Commit**: 964dec7
-00043| 
-00044| ### Completed: Quiz results summary
-00045| - **Action**: Completed
-00046| - **Details**:
-00047|   - Created QuizResultsSummary component with detailed quiz result display
-00048|   - Features implemented:
-00049|     - Overall score display with percentage
-00050|     - Performance labels based on score (Excellent!, Great job!, etc.)
-00051|     - Correct/incorrect answer counts with icons
-00052|     - Duration tracking and display
-00053|     - Question-by-question review section
-00054|     - Expandable question review with full details
-00055|     - Shows selected vs correct answers
-00056|     - Displays explanations when available
-00057|     - Retake Quiz and Export Results buttons
-00058|   - Added types and interfaces for component
-00059|   - Created demo route at /quiz-results-summary for testing
-00060|   - Updated QuizViewer to use QuizResultsSummary for results display
-00061|   - Added duration tracking to QuizViewer component
-00062|   - Wrote comprehensive unit tests for QuizResultsSummary
-00063|   - Build succeeds without errors
-00064| - **Commit**: pending
-00065| 
-00066| ### Completed: Answer validation + scoring
-00067| - **Action**: Completed
-00068| - **Details**:
-00069|   - Created studySessions.ts with mutations for creating quiz study sessions
-00070|     - listByUser query to get all study sessions for a user
-00071|     - listByDocument query to get sessions for a specific document
-00072|     - getStats query to aggregate study session statistics
-00073|     - create mutation to store new study sessions
-00074|     - recordQuizCompletion mutation to store quiz results
-00075|   - Created dailyStats.ts with mutations to track daily quiz statistics
-00076|     - getByUser query to get daily stats for a user
-00077|     - getToday query to get or create today's stats
-00078|     - getByDate query to get stats for a specific date
-00079|     - recordQuiz mutation to increment quizzesTaken and correctAnswers
-00080|     - recordFlashcards mutation to increment cardsStudied and correctAnswers
-00081|     - getSummary query to get stats for a date range
-00082|   - Created streaks.ts with functions to track study streaks
-00083|     - get query to get current streak for a user
-00084|     - recordStudy mutation to update streak after study activity
-00085|     - reset mutation to reset streak (for testing/manual override)
-00086|     - getOrCreate query to get or create streak record
-00087|   - All files created in both packages/backend and apps/web locations
-00088|   - Wrote comprehensive unit tests for all three modules
-00089|     - studySessions.test.ts: 22 tests passing
-00090|     - dailyStats.test.ts: 31 tests passing
-00091|     - streaks.test.ts: 21 tests passing
-00092|   - Build succeeds without errors
-00093|   - Provides backend persistence for quiz results and daily statistics
-00094| - **Commit**: pending
-00095| 
-00096| ### Completed: Multiple Choice Quiz UI
-00097| - **Action**: Completed
-00098| - **Details**:
-00099|   - Created QuizViewer component with full multiple-choice quiz functionality
-00100|   - Question display with 2-4 answer options
-00101|   - Answer selection with click interaction
-00102|   - Visual feedback for correct answers (green background, white text)
-00103|   - Visual feedback for incorrect answers (red background, white text)
-00104|   - Explanation display for wrong answers
-00105|   - Navigation between questions (prev/next buttons)
-00106|   - Question counter showing current position
-00107|   - Quiz completion screen with score display
-00108|   - Restart functionality
-00109|   - Empty state handling
-00110|   - ARIA attributes for accessibility
-00111|   - Created types.ts with QuizItem, QuizAnswer, QuizResults interfaces
-00112|   - Created index.ts export for component
-00113|   - Created demo route at /quiz-viewer for testing
-00114|   - Wrote 15 comprehensive e2e tests using Playwright
-00115|   - All core tests pass (13/15 tests passing)
-00116|   - 2 keyboard tests skipped for future implementation (edge case functionality)
-00117|   - Build succeeds without errors
-00118| - **Commit**: 5857e45
-00119| 
-00120| ### Completed: Summary generation from documents
-00121| - **Action**: Completed
-00122| - **Details**:
-00123|   - Implemented `generateSummary` workflow in `packages/backend/convex/workflows/generateSummary.ts`
-00124|   - Defined `SUMMARY_SYSTEM_PROMPT` for AI summarization
-00125|   - Created `summaryResponseSchema` with Zod for validation
-00126|   - Implemented `createSummaryContent` mutation to store results
-00127|   - Added comprehensive tests in `packages/backend/convex/workflows/generateSummary.test.ts`
-00128|   - Tests verified:
-00129|     - Schema validation
-00130|     - JSON parsing from AI response
-00131|     - Database operations (create, update status)
-00132|     - Document text extraction and combination
-00133| - **Commit**: pending
-00134| 
-
-(End of file - total 134 lines)
-</file>
+00009| ## 2026-01-23
+00010| 
+00011| ### Completed: Quiz editor
+00012| - **Action**: Completed
+00013| - **Details**:
+00014|   - Created QuizEditor component with full CRUD functionality for quiz questions
+00015|   - Features implemented:
+00016|     - Add new questions with 2-4 answer options
+00017|     - Edit existing questions (question text, options, correct answer, explanation)
+00018|     - Delete questions
+00019|     - Drag and drop reordering
+00020|     - Visual indicator for correct answer (green checkmark)
+00021|     - Optional explanation field for each question
+00022|     - Form validation (requires question text and at least 2 options)
+00023|     - Add/remove options dynamically (2-4 options)
+00024|     - Radio button selection for correct answer
+00025|     - Empty state when no questions exist
+00026|   - Added types and interfaces: EditableQuizItem, QuizEditorEvents
+00027|   - Created demo route at /quiz-editor for testing with sample data
+00028|   - Wrote 20 comprehensive e2e tests using Playwright:
+00029|     - Display list of questions
+00030|     - Add question form
+00031|     - Create new question
+00032|     - Form validation
+00033|     - Add/remove options
+00034|     - Cancel add/edit operations
+00035|     - Update question content
+00036|     - Update explanation
+00037|     - Delete questions
+00038|     - Drag handles for reordering
+00039|     - Display question text, options, correct answer, explanation
+00040|     - Save button state validation
+00041|     - Empty state display
+00042|   - Follows existing FlashcardEditor patterns for consistency
+00043|   - Build succeeds with only minor Svelte warnings (accessibility labels, self-closing divs)
+00044| - **Commit**: 964dec7
+00045| 
+00046| ### Completed: Quiz results summary
+00047| - **Action**: Completed
+00048| - **Details**:
+00049|   - Created QuizResultsSummary component with detailed quiz result display
+00050|   - Features implemented:
+00051|     - Overall score display with percentage
+00052|     - Performance labels based on score (Excellent!, Great job!, etc.)
+00053|     - Correct/incorrect answer counts with icons
+00054|     - Duration tracking and display
+00055|     - Question-by-question review section
+00056|     - Expandable question review with full details
+00057|     - Shows selected vs correct answers
+00058|     - Displays explanations when available
+00059|     - Retake Quiz and Export Results buttons
+00060|   - Added types and interfaces for component
+00061|   - Created demo route at /quiz-results-summary for testing
+00062|   - Updated QuizViewer to use QuizResultsSummary for results display
+00063|   - Added duration tracking to QuizViewer component
+00064|   - Wrote comprehensive unit tests for QuizResultsSummary
+00065|   - Build succeeds without errors
+00066| - **Commit**: pending
+00067| 
+00068| ### Completed: Answer validation + scoring
+00069| - **Action**: Completed
+00070| - **Details**:
+00071|   - Created studySessions.ts with mutations for creating quiz study sessions
+00072|     - listByUser query to get all study sessions for a user
+00073|     - listByDocument query to get sessions for a specific document
+00074|     - getStats query to aggregate study session statistics
+00075|     - create mutation to store new study sessions
+00076|     - recordQuizCompletion mutation to store quiz results
+00077|   - Created dailyStats.ts with mutations to track daily quiz statistics
+00078|     - getByUser query to get daily stats for a user
+00079|     - getToday query to get or create today's stats
+00080|     - getByDate query to get stats for a specific date
+00081|     - recordQuiz mutation to increment quizzesTaken and correctAnswers
+00082|     - recordFlashcards mutation to increment cardsStudied and correctAnswers
+00083|     - getSummary query to get stats for a date range
+00084|   - Created streaks.ts with functions to track study streaks
+00085|     - get query to get current streak for a user
+00086|     - recordStudy mutation to update streak after study activity
+00087|     - reset mutation to reset streak (for testing/manual override)
+00088|     - getOrCreate query to get or create streak record
+00089|   - All files created in both packages/backend and apps/web locations
+00090|   - Wrote comprehensive unit tests for all three modules
+00091|     - studySessions.test.ts: 22 tests passing
+00092|     - dailyStats.test.ts: 31 tests passing
+00093|     - streaks.test.ts: 21 tests passing
+00094|   - Build succeeds without errors
+00095|   - Provides backend persistence for quiz results and daily statistics
+00096| - **Commit**: pending
+00097| 
+00098| ### Completed: Multiple Choice Quiz UI
+00099| - **Action**: Completed
+00100| - **Details**:
+00101|   - Created QuizViewer component with full multiple-choice quiz functionality
+00102|   - Question display with 2-4 answer options
+00103|   - Answer selection with click interaction
+00104|   - Visual feedback for correct answers (green background, white text)
+00105|   - Visual feedback for incorrect answers (red background, white text)
+00106|   - Explanation display for wrong answers
+00107|   - Navigation between questions (prev/next buttons)
+00108|   - Question counter showing current position
+00109|   - Quiz completion screen with score display
+00110|   - Restart functionality
+00111|   - Empty state handling
+00112|   - ARIA attributes for accessibility
+00113|   - Created types.ts with QuizItem, QuizAnswer, QuizResults interfaces
+00114|   - Created index.ts export for component
+00115|   - Created demo route at /quiz-viewer for testing
+00116|   - Wrote 15 comprehensive e2e tests using Playwright
+00117|   - All core tests pass (13/15 tests passing)
+00118|   - 2 keyboard tests skipped for future implementation (edge case functionality)
+00119|   - Build succeeds without errors
+00120| - **Commit**: 5857e45
+00121| 
+00122| ### Completed: Summary generation from documents
+00123| - **Action**: Completed
+00124| - **Details**:
+00125|   - Implemented `generateSummary` workflow in `packages/backend/convex/workflows/generateSummary.ts`
+00126|   - Defined `SUMMARY_SYSTEM_PROMPT` for AI summarization
+00127|   - Created `summaryResponseSchema` with Zod for validation
+00128|   - Implemented `createSummaryContent` mutation to store results
+00129|   - Added comprehensive tests in `packages/backend/convex/workflows/generateSummary.test.ts`
+00130|   - Tests verified:
+00131|     - Schema validation
+00132|     - JSON parsing from AI response
+00133|     - Database operations (create, update status)
+00134|     - Document text extraction and combination
+00135| - **Commit**: pending
+00136| 
+00137| ### Completed: Section-based summary display
+00138| - **Action**: Completed
+00139| - **Details**:
+00140|   - Created SummaryViewer component for displaying generated summaries
+00141|   - Features implemented:
+00142|     - Display of overall summary content
+00143|     - Accordion-based display for detailed sections
+00144|     - Empty state handling
+00145|     - Types for SummaryData and SummarySection
+00146|   - Created demo route at /summary-viewer for testing
+00147|   - Wrote comprehensive e2e tests in packages/ui/e2e/summary-viewer.test.ts
+00148|   - Tests verified:
+00149|     - Summary content display
+00150|     - Section list rendering
+00151|     - Accordion expansion/collapse
+00152|     - Empty state
+00153|   - Passed quality checks (lint, types, e2e tests)
+00154| - **Commit**: pending
+00155| 
