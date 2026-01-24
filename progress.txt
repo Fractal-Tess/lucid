@@ -154,3 +154,14 @@
 00153|   - Passed quality checks (lint, types, e2e tests)
 00154| - **Commit**: pending
 00155| 
+
+## 2026-01-24 - SUM-001
+- Implemented summary prompt in `packages/ai/src/prompts/summary.ts`
+- Added `@lucid/ai` dependency to `packages/backend`
+- Refactored `generateSummary.ts` to use shared prompt and schema
+- Fixed type errors in `packages/ai/src/router.config.ts`
+- **Learnings for future iterations:**
+  - `packages/backend` needs `@lucid/ai` dependency explicitly added to use shared code
+  - `@lucid/ai` exports prompts via `./prompts/*` path
+  - Always check `bun run check-types` in library packages
+---

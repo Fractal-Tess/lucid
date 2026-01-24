@@ -1,0 +1,107 @@
+{
+  "project": "Lucid",
+  "branchName": "ralph/summaries-feature",
+  "description": "Summaries Feature - Generate and display document summaries",
+  "userStories": [
+    {
+      "id": "SUM-001",
+      "title": "Create summary generation AI prompt",
+      "description": "As a developer, I need an AI prompt that extracts structured summaries from documents.",
+      "acceptanceCriteria": [
+        "Create summary prompt template in packages/ai/src/prompts/summary.ts",
+        "Prompt should extract section-based summaries with title and content",
+        "Include key concepts, main points, and supporting details per section",
+        "Export prompt function that takes document text and returns structured summary",
+        "Typecheck passes (bun run check-types)"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Look at existing AI prompts for flashcards and quizzes as reference"
+    },
+    {
+      "id": "SUM-002",
+      "title": "Add summary generation backend mutation",
+      "description": "As a developer, I need a Convex mutation to generate summaries from document content.",
+      "acceptanceCriteria": [
+        "Create summaryItems.ts in packages/backend/convex/functions/",
+        "Add mutations: create, update, delete, getByDocument",
+        "Use LLM router from packages/ai to call AI with summary prompt",
+        "Store generated summary sections in database",
+        "Handle generation status (pending, processing, completed, failed)",
+        "Unit tests in summaryItems.test.ts",
+        "Typecheck passes (bun run check-types)"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Follow patterns from quiz/flashcard generation"
+    },
+    {
+      "id": "SUM-003",
+      "title": "Create SummaryViewer component",
+      "description": "As a user, I want to view my document summaries in a clean, readable format.",
+      "acceptanceCriteria": [
+        "Create packages/ui/src/lib/components/ui/summary-viewer/ directory",
+        "Create summary-viewer.svelte, types.ts, index.ts",
+        "Display section-based summaries with Collapsible component",
+        "Show key concepts with Badge or visual emphasis",
+        "Include table of contents sidebar for navigation",
+        "Empty state when no summary exists",
+        "ARIA attributes for accessibility",
+        "Typecheck passes (bun run check-types)"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Use existing shadcn-svelte components like Collapsible, Card"
+    },
+    {
+      "id": "SUM-004",
+      "title": "Create SummaryEditor component",
+      "description": "As a user, I want to edit my summaries to add notes or correct information.",
+      "acceptanceCriteria": [
+        "Create packages/ui/src/lib/components/ui/summary-editor/ directory",
+        "Create summary-editor.svelte, types.ts, index.ts",
+        "Support editing section titles and content with Input/Textarea",
+        "Add/remove sections functionality with Button",
+        "Drag and drop to reorder sections (follow FlashcardEditor pattern)",
+        "Save changes button with loading state",
+        "Cancel editing dispatches 'cancel' event",
+        "Typecheck passes (bun run check-types)"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Follow patterns from FlashcardEditor and QuizEditor"
+    },
+    {
+      "id": "SUM-005",
+      "title": "Add demo route for SummaryViewer",
+      "description": "As a developer, I need a demo route to test the SummaryViewer component.",
+      "acceptanceCriteria": [
+        "Create apps/web/src/routes/(demo)/summary-viewer/+page.svelte",
+        "Import SummaryViewer from @lucid/ui",
+        "Include sample summary data with 3-5 sections",
+        "Test navigation and section collapse manually",
+        "Route accessible at http://localhost:5173/summary-viewer",
+        "Typecheck passes (bun run check-types)"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "SUM-006",
+      "title": "Write e2e tests for SummaryViewer",
+      "description": "As a developer, I need e2e tests to verify SummaryViewer functionality.",
+      "acceptanceCriteria": [
+        "Create packages/ui/e2e/summary-viewer.test.ts",
+        "Test section collapse/expand with click",
+        "Test table of contents navigation scrolls to section",
+        "Test empty state display when no sections",
+        "Test all sections render with correct content",
+        "All tests pass (bun run test:e2e in packages/ui)"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "Follow existing test patterns from quiz-viewer tests"
+    }
+  ]
+}

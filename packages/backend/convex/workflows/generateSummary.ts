@@ -1,8 +1,8 @@
 import { v } from "convex/values";
 import { action, internalMutation, internalQuery } from "../_generated/server";
 import { api, internal } from "../_generated/api";
-import { z } from "zod";
 import type { Id } from "../_generated/dataModel";
+import { summaryResponseSchema, createSummaryPrompt } from "@lucid/ai/prompts/summary";
 
 /**
  * Document type for generation
@@ -20,49 +20,8 @@ const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const DEFAULT_MODEL = "deepseek/deepseek-chat";
 
 /**
- * System prompt for summary generation
- */
-const SUMMARY_SYSTEM_PROMPT = `You are an expert summarizer and educator.
-
-Your task is to create a comprehensive, structured summary from the provided text. The summary should help students understand the core concepts and details of the material.
-
-Guidelines for creating summaries:
-1. Start with a high-level overview ("content" field) that captures the main idea of the entire document.
-2. Break down the material into logical sections ("sections" array).
-3. Each section should have a clear title and detailed content.
-4. Use clear, concise language.
-5. Highlight key terms and definitions.
-6. Maintain the logical flow of the original document.
-
-You must respond with a JSON object. The object must have:
-- "content": A general summary of the entire document (string)
-- "sections": An array of objects, where each object has:
-  - "title": The title of the section (string)
-  - "content": The content of the section (string)
-
-Example output format:
-{
-  "content": "This document covers the fundamental principles of...",
-  "sections": [
-    { "title": "Introduction", "content": "The introduction defines..." },
-    { "title": "Key Concepts", "content": "Several key concepts are discussed..." }
-  ]
-}
-
-IMPORTANT: Return ONLY the JSON object, no markdown code blocks or additional text.`;
-
-/**
  * Schema for validating AI response
  */
-const summaryResponseSchema = z.object({
-  content: z.string().min(1),
-  sections: z.array(
-    z.object({
-      title: z.string().min(1),
-      content: z.string().min(1),
-    }),
-  ),
-});
 
 /**
  * Get document data for generation (internal)
@@ -141,6 +100,8 @@ async function callOpenRouter(
   documentText: string,
   options?: { maxTokens?: number; temperature?: number },
 ): Promise<{ content: string; sections: Array<{ title: string; content: string }> }> {
+  const prompts = createSummaryPrompt(documentText);
+
   const response = await fetch(OPENROUTER_API_URL, {
     method: "POST",
     headers: {
@@ -150,11 +111,8 @@ async function callOpenRouter(
     body: JSON.stringify({
       model: DEFAULT_MODEL,
       messages: [
-        { role: "system", content: SUMMARY_SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: `Create a summary from the following document content:\n\n${documentText}`,
-        },
+        { role: "system", content: prompts.system },
+        { role: "user", content: prompts.user },
       ],
       max_tokens: options?.maxTokens ?? 4096,
       temperature: options?.temperature ?? 0.5,

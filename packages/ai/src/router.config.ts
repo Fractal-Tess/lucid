@@ -121,7 +121,7 @@ export function getModelForTask(task: TaskType, complexity?: number): ModelConfi
       const match = rule.condition.match(/complexity\s*([><=]+)\s*([\d.]+)/);
       if (match && complexity !== undefined) {
         const [, operator, threshold] = match;
-        const thresholdNum = parseFloat(threshold);
+        const thresholdNum = parseFloat(threshold!);
 
         let conditionMet = false;
         switch (operator) {
@@ -156,5 +156,9 @@ export function getModelForTask(task: TaskType, complexity?: number): ModelConfi
   }
 
   // Fallback to default model
-  return routerConfig.models[routerConfig.defaultModel];
+  const defaultModel = routerConfig.models[routerConfig.defaultModel];
+  if (!defaultModel) {
+    throw new Error(`Default model ${routerConfig.defaultModel} not configured`);
+  }
+  return defaultModel;
 }
