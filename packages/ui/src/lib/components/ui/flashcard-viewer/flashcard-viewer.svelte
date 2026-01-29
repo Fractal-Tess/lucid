@@ -1,8 +1,5 @@
-<script lang="ts" module>
-	import type { Flashcard, CardRating, RatingButton } from "./types.js";
-</script>
-
 <script lang="ts">
+	import type { Flashcard, CardRating, RatingButton } from "./types.js";
 	import { RotateCw, ChevronLeft, ChevronRight } from "@lucide/svelte";
 	import { Button } from "@lib/components/ui/button/index.js";
 	import { DEFAULT_RATING_BUTTONS } from "./types.js";

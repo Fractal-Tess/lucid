@@ -17,5 +17,5 @@ OPENROUTER_API_KEY=sk-or-...
 DOCLING_URL=http://docling:8000
 
 # App
-PUBLIC_APP_URL=https://lucid.yourdomain.com
+PUBLIC_APP_URL=https://alpha.yourdomain.com
 ```

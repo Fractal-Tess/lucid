@@ -18,17 +18,45 @@ const generationType = v.union(
  */
 const generationStatus = v.union(v.literal("generating"), v.literal("ready"), v.literal("failed"));
 
+import { authComponent } from "../auth";
+
 /**
- * List all generations for a user
+ * Get the current user's ID from our users table
+ */
+async function getCurrentUserId(ctx: any) {
+  let authUser;
+  try {
+    authUser = await authComponent.getAuthUser(ctx);
+  } catch {
+    // User is not authenticated
+    return null;
+  }
+  if (!authUser) {
+    return null;
+  }
+
+  // Look up our user by the Better Auth ID
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_better_auth_id", (q: any) => q.eq("betterAuthId", authUser._id))
+    .first();
+
+  return user?._id ?? null;
+}
+
+/**
+ * List all generations for the current user
  */
 export const list = query({
-  args: {
-    userId: v.id("users"),
-  },
-  handler: async (ctx, args) => {
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getCurrentUserId(ctx);
+    if (!userId) {
+      return [];
+    }
     return await ctx.db
       .query("generations")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
   },
 });

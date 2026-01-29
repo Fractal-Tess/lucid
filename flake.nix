@@ -1,5 +1,5 @@
 {
-  description = "Lucid study app development environment";
+  description = "Alpha study app development environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";

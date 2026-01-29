@@ -32,7 +32,7 @@
         "Typecheck passes (bun run check-types)"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Follow patterns from quiz/flashcard generation"
     },
     {
@@ -50,7 +50,7 @@
         "Typecheck passes (bun run check-types)"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "Use existing shadcn-svelte components like Collapsible, Card"
     },
     {
@@ -68,7 +68,7 @@
         "Typecheck passes (bun run check-types)"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Follow patterns from FlashcardEditor and QuizEditor"
     },
     {
@@ -84,7 +84,7 @@
         "Typecheck passes (bun run check-types)"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
@@ -100,7 +100,7 @@
         "All tests pass (bun run test:e2e in packages/ui)"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "Follow existing test patterns from quiz-viewer tests"
     }
   ]

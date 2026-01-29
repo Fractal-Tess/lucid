@@ -8,7 +8,7 @@ from pydantic import BaseModel
 import tempfile
 import os
 
-app = FastAPI(title="Lucid Docling Service")
+app = FastAPI(title="Alpha Docling Service")
 converter = DocumentConverter()
 
 class ExtractionResult(BaseModel):

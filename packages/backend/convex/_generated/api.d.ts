@@ -10,19 +10,26 @@
 
 import type * as auth from "../auth.js";
 import type * as functions_dailyStats from "../functions/dailyStats.js";
+import type * as functions_documentChunks from "../functions/documentChunks.js";
 import type * as functions_documents from "../functions/documents.js";
 import type * as functions_flashcardItems from "../functions/flashcardItems.js";
 import type * as functions_folders from "../functions/folders.js";
 import type * as functions_generations from "../functions/generations.js";
+import type * as functions_notesItems from "../functions/notesItems.js";
 import type * as functions_quizItems from "../functions/quizItems.js";
 import type * as functions_streaks from "../functions/streaks.js";
 import type * as functions_studySessions from "../functions/studySessions.js";
 import type * as functions_subjectGroups from "../functions/subjectGroups.js";
 import type * as functions_subjects from "../functions/subjects.js";
+import type * as functions_summaryItems from "../functions/summaryItems.js";
+import type * as functions_users from "../functions/users.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as http from "../http.js";
+import type * as workflows_generateEmbeddings from "../workflows/generateEmbeddings.js";
 import type * as workflows_generateFlashcards from "../workflows/generateFlashcards.js";
+import type * as workflows_generateNotes from "../workflows/generateNotes.js";
 import type * as workflows_generateQuiz from "../workflows/generateQuiz.js";
+import type * as workflows_generateSummary from "../workflows/generateSummary.js";
 import type * as workflows_processDocument from "../workflows/processDocument.js";
 
 import type {
@@ -34,19 +41,26 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   "functions/dailyStats": typeof functions_dailyStats;
+  "functions/documentChunks": typeof functions_documentChunks;
   "functions/documents": typeof functions_documents;
   "functions/flashcardItems": typeof functions_flashcardItems;
   "functions/folders": typeof functions_folders;
   "functions/generations": typeof functions_generations;
+  "functions/notesItems": typeof functions_notesItems;
   "functions/quizItems": typeof functions_quizItems;
   "functions/streaks": typeof functions_streaks;
   "functions/studySessions": typeof functions_studySessions;
   "functions/subjectGroups": typeof functions_subjectGroups;
   "functions/subjects": typeof functions_subjects;
+  "functions/summaryItems": typeof functions_summaryItems;
+  "functions/users": typeof functions_users;
   healthCheck: typeof healthCheck;
   http: typeof http;
+  "workflows/generateEmbeddings": typeof workflows_generateEmbeddings;
   "workflows/generateFlashcards": typeof workflows_generateFlashcards;
+  "workflows/generateNotes": typeof workflows_generateNotes;
   "workflows/generateQuiz": typeof workflows_generateQuiz;
+  "workflows/generateSummary": typeof workflows_generateSummary;
   "workflows/processDocument": typeof workflows_processDocument;
 }>;
 

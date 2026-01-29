@@ -1,6 +1,6 @@
 # Agent Instructions
 
-You are an AI agent building the Lucid study app. Follow these guidelines:
+You are an AI agent building the Alpha study app. Follow these guidelines:
 
 ## Workflow
 

@@ -1,6 +1,6 @@
-# Lucid - Study App Specification
+# Alpha - Study App Specification
 
-This folder contains the complete specification for the Lucid study app, split into logical sections for easier navigation and maintenance.
+This folder contains the complete specification for the Alpha study app, split into logical sections for easier navigation and maintenance.
 
 ## Structure
 

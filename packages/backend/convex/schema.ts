@@ -337,4 +337,30 @@ export default defineSchema({
     completed: v.boolean(),
     createdAt: v.number(),
   }).index("by_user", ["userId"]),
+
+  // ============================================
+  // VECTOR SEARCH - Document Chunks with Embeddings
+  // ============================================
+
+  documentChunks: defineTable({
+    documentId: v.id("documents"),
+    userId: v.id("users"),
+    content: v.string(), // The text chunk
+    embedding: v.array(v.number()), // Vector embedding (e.g., 1536 dimensions for OpenAI)
+    chunkIndex: v.number(), // Position in document (0, 1, 2, ...)
+    metadata: v.object({
+      sectionTitle: v.optional(v.string()), // Section/chapter title if available
+      pageNumber: v.optional(v.number()), // Page number if available
+      charStart: v.optional(v.number()), // Character position start
+      charEnd: v.optional(v.number()), // Character position end
+    }),
+    createdAt: v.number(),
+  })
+    .index("by_document", ["documentId"])
+    .index("by_user", ["userId"])
+    .vectorIndex("by_embedding", {
+      vectorField: "embedding",
+      dimensions: 1536, // OpenAI text-embedding-3-small
+      filterFields: ["documentId", "userId"],
+    }),
 });

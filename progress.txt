@@ -1,167 +1,72 @@
-<file>
-00001| # Lucid Development Progress
-00002| 
-00003| ## Codebase Patterns
-00004| - Testing: Use `convex-test` for integration testing of Convex functions with a mock database.
-00005| - Workflows: Convex actions (in `workflows/`) handle external API calls (like LLMs) and coordinate mutations.
-00006| - UI Components: Shared UI components reside in `packages/ui/src/lib/components/ui`. Use `export * from "./types.js"` in `index.ts`.
-00007| - Component Testing: Create demo routes in `packages/ui/src/routes/<component-name>` for manual and e2e testing.
-00008| 
-00009| ## 2026-01-23
-00010| 
-00011| ### Completed: Quiz editor
-00012| - **Action**: Completed
-00013| - **Details**:
-00014|   - Created QuizEditor component with full CRUD functionality for quiz questions
-00015|   - Features implemented:
-00016|     - Add new questions with 2-4 answer options
-00017|     - Edit existing questions (question text, options, correct answer, explanation)
-00018|     - Delete questions
-00019|     - Drag and drop reordering
-00020|     - Visual indicator for correct answer (green checkmark)
-00021|     - Optional explanation field for each question
-00022|     - Form validation (requires question text and at least 2 options)
-00023|     - Add/remove options dynamically (2-4 options)
-00024|     - Radio button selection for correct answer
-00025|     - Empty state when no questions exist
-00026|   - Added types and interfaces: EditableQuizItem, QuizEditorEvents
-00027|   - Created demo route at /quiz-editor for testing with sample data
-00028|   - Wrote 20 comprehensive e2e tests using Playwright:
-00029|     - Display list of questions
-00030|     - Add question form
-00031|     - Create new question
-00032|     - Form validation
-00033|     - Add/remove options
-00034|     - Cancel add/edit operations
-00035|     - Update question content
-00036|     - Update explanation
-00037|     - Delete questions
-00038|     - Drag handles for reordering
-00039|     - Display question text, options, correct answer, explanation
-00040|     - Save button state validation
-00041|     - Empty state display
-00042|   - Follows existing FlashcardEditor patterns for consistency
-00043|   - Build succeeds with only minor Svelte warnings (accessibility labels, self-closing divs)
-00044| - **Commit**: 964dec7
-00045| 
-00046| ### Completed: Quiz results summary
-00047| - **Action**: Completed
-00048| - **Details**:
-00049|   - Created QuizResultsSummary component with detailed quiz result display
-00050|   - Features implemented:
-00051|     - Overall score display with percentage
-00052|     - Performance labels based on score (Excellent!, Great job!, etc.)
-00053|     - Correct/incorrect answer counts with icons
-00054|     - Duration tracking and display
-00055|     - Question-by-question review section
-00056|     - Expandable question review with full details
-00057|     - Shows selected vs correct answers
-00058|     - Displays explanations when available
-00059|     - Retake Quiz and Export Results buttons
-00060|   - Added types and interfaces for component
-00061|   - Created demo route at /quiz-results-summary for testing
-00062|   - Updated QuizViewer to use QuizResultsSummary for results display
-00063|   - Added duration tracking to QuizViewer component
-00064|   - Wrote comprehensive unit tests for QuizResultsSummary
-00065|   - Build succeeds without errors
-00066| - **Commit**: pending
-00067| 
-00068| ### Completed: Answer validation + scoring
-00069| - **Action**: Completed
-00070| - **Details**:
-00071|   - Created studySessions.ts with mutations for creating quiz study sessions
-00072|     - listByUser query to get all study sessions for a user
-00073|     - listByDocument query to get sessions for a specific document
-00074|     - getStats query to aggregate study session statistics
-00075|     - create mutation to store new study sessions
-00076|     - recordQuizCompletion mutation to store quiz results
-00077|   - Created dailyStats.ts with mutations to track daily quiz statistics
-00078|     - getByUser query to get daily stats for a user
-00079|     - getToday query to get or create today's stats
-00080|     - getByDate query to get stats for a specific date
-00081|     - recordQuiz mutation to increment quizzesTaken and correctAnswers
-00082|     - recordFlashcards mutation to increment cardsStudied and correctAnswers
-00083|     - getSummary query to get stats for a date range
-00084|   - Created streaks.ts with functions to track study streaks
-00085|     - get query to get current streak for a user
-00086|     - recordStudy mutation to update streak after study activity
-00087|     - reset mutation to reset streak (for testing/manual override)
-00088|     - getOrCreate query to get or create streak record
-00089|   - All files created in both packages/backend and apps/web locations
-00090|   - Wrote comprehensive unit tests for all three modules
-00091|     - studySessions.test.ts: 22 tests passing
-00092|     - dailyStats.test.ts: 31 tests passing
-00093|     - streaks.test.ts: 21 tests passing
-00094|   - Build succeeds without errors
-00095|   - Provides backend persistence for quiz results and daily statistics
-00096| - **Commit**: pending
-00097| 
-00098| ### Completed: Multiple Choice Quiz UI
-00099| - **Action**: Completed
-00100| - **Details**:
-00101|   - Created QuizViewer component with full multiple-choice quiz functionality
-00102|   - Question display with 2-4 answer options
-00103|   - Answer selection with click interaction
-00104|   - Visual feedback for correct answers (green background, white text)
-00105|   - Visual feedback for incorrect answers (red background, white text)
-00106|   - Explanation display for wrong answers
-00107|   - Navigation between questions (prev/next buttons)
-00108|   - Question counter showing current position
-00109|   - Quiz completion screen with score display
-00110|   - Restart functionality
-00111|   - Empty state handling
-00112|   - ARIA attributes for accessibility
-00113|   - Created types.ts with QuizItem, QuizAnswer, QuizResults interfaces
-00114|   - Created index.ts export for component
-00115|   - Created demo route at /quiz-viewer for testing
-00116|   - Wrote 15 comprehensive e2e tests using Playwright
-00117|   - All core tests pass (13/15 tests passing)
-00118|   - 2 keyboard tests skipped for future implementation (edge case functionality)
-00119|   - Build succeeds without errors
-00120| - **Commit**: 5857e45
-00121| 
-00122| ### Completed: Summary generation from documents
-00123| - **Action**: Completed
-00124| - **Details**:
-00125|   - Implemented `generateSummary` workflow in `packages/backend/convex/workflows/generateSummary.ts`
-00126|   - Defined `SUMMARY_SYSTEM_PROMPT` for AI summarization
-00127|   - Created `summaryResponseSchema` with Zod for validation
-00128|   - Implemented `createSummaryContent` mutation to store results
-00129|   - Added comprehensive tests in `packages/backend/convex/workflows/generateSummary.test.ts`
-00130|   - Tests verified:
-00131|     - Schema validation
-00132|     - JSON parsing from AI response
-00133|     - Database operations (create, update status)
-00134|     - Document text extraction and combination
-00135| - **Commit**: pending
-00136| 
-00137| ### Completed: Section-based summary display
-00138| - **Action**: Completed
-00139| - **Details**:
-00140|   - Created SummaryViewer component for displaying generated summaries
-00141|   - Features implemented:
-00142|     - Display of overall summary content
-00143|     - Accordion-based display for detailed sections
-00144|     - Empty state handling
-00145|     - Types for SummaryData and SummarySection
-00146|   - Created demo route at /summary-viewer for testing
-00147|   - Wrote comprehensive e2e tests in packages/ui/e2e/summary-viewer.test.ts
-00148|   - Tests verified:
-00149|     - Summary content display
-00150|     - Section list rendering
-00151|     - Accordion expansion/collapse
-00152|     - Empty state
-00153|   - Passed quality checks (lint, types, e2e tests)
-00154| - **Commit**: pending
-00155| 
-
-## 2026-01-24 - SUM-001
-- Implemented summary prompt in `packages/ai/src/prompts/summary.ts`
-- Added `@lucid/ai` dependency to `packages/backend`
-- Refactored `generateSummary.ts` to use shared prompt and schema
-- Fixed type errors in `packages/ai/src/router.config.ts`
+## 2026-01-24 - SUM-004
+- Implemented SummaryEditor component
+- Created packages/ui/src/lib/components/ui/summary-editor/ directory
+- Created types.ts, summary-editor.svelte, index.ts
+- Implemented features:
+  - List of sections (title + content)
+  - Edit mode for sections
+  - Drag and drop reordering
+  - Add/Remove sections
+  - Save/Cancel actions
+- Added demo route at packages/ui/src/routes/summary-editor/
+- Updated PRD to reflect completed status of previous tasks (SUM-002, SUM-003, SUM-005, SUM-006)
 - **Learnings for future iterations:**
-  - `packages/backend` needs `@lucid/ai` dependency explicitly added to use shared code
-  - `@lucid/ai` exports prompts via `./prompts/*` path
-  - Always check `bun run check-types` in library packages
----
+  - Svelte 5 runes (`$state`, `$props`) are standard; follow this pattern for all new components.
+  - `packages/ui` uses alias imports (e.g., `@lib/components/ui/...`) which are resolved at build time.
+
+## 2026-01-29 - VECTOR-001
+- Implemented vector search functionality with Docling integration
+- Added `documentChunks` table to schema with vector index (1536 dimensions for OpenAI embeddings)
+- Extended Docling service with `/chunk` endpoint for text chunking:
+  - Sentence-aware chunking (1000 char chunks, 200 char overlap)
+  - Section-based chunking preserving document structure
+  - Metadata extraction (section titles, page numbers, char positions)
+- Created embedding generation workflow (`generateEmbeddings.ts`):
+  - OpenAI text-embedding-3-small integration
+  - Chunk processing with embedding generation
+  - Automatic cleanup of existing chunks on re-processing
+- Added document chunk queries (`documentChunks.ts`):
+  - List chunks by document
+  - Search similar chunks (user-scoped and document-scoped)
+  - Delete chunks by document
+  - Get chunk count for documents
+- Updated schema tests to include new `documentChunks` table (23 tables total)
+- Added comprehensive tests for Docling chunking functionality
+- Installed @qdrant/js-client-rest package for future Qdrant integration if needed
+
+## 2026-01-29 - VECTOR-002 - OpenAI Integration Testing
+- Created comprehensive integration tests for OpenAI text-embedding-3-small:
+  - Model: `openai/text-embedding-3-small` via OpenRouter
+  - Context: 8,192 tokens
+  - Cost: $0.02/M input tokens
+  - Dimensions: 1536
+- Test coverage includes:
+  - **Embedding Generation**: Verify 1536 dimensions, valid numeric values
+  - **Consistency**: Same text produces similar embeddings (cosine similarity > 0.99)
+  - **Differentiation**: Different texts produce different embeddings (similarity < 0.9)
+  - **Semantic Similarity**: Related texts have higher similarity scores (> 0.6)
+  - **Semantic Search**: Query matching finds most relevant documents
+  - **Edge Cases**: Short text, long text, special characters handled correctly
+  - **Embedding Properties**: Normalized embeddings (L2 norm ~1), values in [-1, 1]
+- Tests support both OpenAI direct API and OpenRouter integration
+- Tests skip gracefully when API keys are not configured
+- **LIVE TEST RESULTS** (with OpenRouter API key):
+  - All 11 integration tests PASSED
+  - Embedding generation: 1536 dimensions confirmed
+  - API response time: ~1-2 seconds per request
+  - Semantic similarity working correctly
+  - Cosine similarity calculations accurate
+
+## 2026-01-30 - FIX-001 - Fix TypeScript Type Errors
+- Fixed type mismatch between Better Auth's `user` table and our `users` table:
+  - Created `packages/backend/convex/functions/users.ts` with `getCurrentUser` helper
+  - Updated `packages/backend/convex/functions/generations.ts` to look up our user by `betterAuthId`
+- Fixed convex-svelte usage pattern in frontend pages:
+  - Changed from `useMutation()` to `useConvexClient()` + `client.mutation()`
+  - Changed from `$query.data` store access to `query.data` direct property access
+- Fixed files:
+  - `generations/+page.svelte` - List and delete generations
+  - `generations/[id]/+page.svelte` - View generation detail with retry
+  - `subjects/[id]/+page.svelte` - Create folders and generations
+- Build passes successfully with all type errors resolved
+

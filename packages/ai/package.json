@@ -1,7 +1,7 @@
 {
-  "name": "@lucid/ai",
+  "name": "@alpha/ai",
   "version": "1.0.0",
-  "description": "LLM router and AI prompts for Lucid study app",
+  "description": "LLM router and AI prompts for Alpha study app",
   "type": "module",
   "main": "./src/index.ts",
   "exports": {
@@ -19,7 +19,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@lucid/config": "workspace:*",
+    "@alpha/config": "workspace:*",
     "@types/bun": "latest",
     "@types/node": "^25.0.10",
     "typescript": "catalog:",

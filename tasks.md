@@ -1,4 +1,4 @@
-# Lucid - Task Tracker
+# Alpha - Task Tracker
 
 ## Setup & Infrastructure
 
@@ -69,11 +69,11 @@
 
 ### Notes
 
-- [ ] Notes generation from documents
-- [ ] AI prompt for notes extraction
-- [ ] Key points extraction
-- [ ] Rich text/Markdown editor
-- [ ] Notes viewer
+- [x] Notes generation from documents
+- [x] AI prompt for notes extraction
+- [x] Key points extraction
+- [x] Rich text/Markdown editor
+- [x] Notes viewer
 
 ### Generations System
 

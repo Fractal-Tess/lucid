@@ -13,11 +13,13 @@
     "shadcn": "bunx shadcn-svelte@latest add $@ -c ../../packages/ui"
   },
   "dependencies": {
+    "@alpha/backend": "workspace:*",
+    "@alpha/env": "workspace:*",
+    "@alpha/ui": "workspace:*",
     "@convex-dev/better-auth": "^0.10.10",
-    "@lucid/backend": "workspace:*",
-    "@lucid/env": "workspace:*",
-    "@lucid/ui": "workspace:*",
+    "@lucide/svelte": "^0.563.1",
     "@mmailaender/convex-better-auth-svelte": "^0.5.0",
+    "@sveltejs/adapter-node": "^5.5.2",
     "@tanstack/svelte-form": "^1.27.7",
     "better-auth": "1.4.9",
     "convex": "catalog:",
@@ -26,7 +28,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@lucid/config": "workspace:*",
+    "@alpha/config": "workspace:*",
     "@sveltejs/adapter-auto": "^7.0.0",
     "@sveltejs/kit": "^2.50.0",
     "@sveltejs/vite-plugin-svelte": "^6.2.4",

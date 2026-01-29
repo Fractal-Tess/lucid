@@ -1,8 +1,8 @@
 # Monorepo Structure
 
 ```
-lucid/
-├── apps/
+alpha/
+ ├── apps/
 │   ├── web/                  # SvelteKit app
 │   │   ├── src/
 │   │   │   ├── routes/

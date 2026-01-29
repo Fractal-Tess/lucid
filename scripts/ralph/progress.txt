@@ -1,0 +1,24 @@
+# Ralph Progress Log
+Started: Fri Jan 23 02:42:50 PM EET 2026
+
+## Codebase Patterns
+- UI components go in `packages/ui/src/lib/components/ui/<component-name>/`
+- Each component has: `<component>.svelte`, `types.ts`, `index.ts`
+- Demo routes go in `apps/web/src/routes/(demo)/<component-name>/+page.svelte`
+- E2E tests go in `packages/ui/e2e/<component-name>.test.ts`
+- Backend functions go in `packages/backend/convex/functions/`
+- Use shadcn-svelte components (Card, Collapsible, Button, etc.)
+- Follow existing patterns from FlashcardViewer, FlashcardEditor, QuizViewer, QuizEditor
+- Export component and types from index.ts
+- Use ARIA attributes for accessibility
+- Run `bun run check-types && bun run build` before committing
+
+## Previous Work (Context)
+- QuizViewer: Multiple choice quiz with navigation, scoring, explanations
+- QuizEditor: CRUD for quiz questions, drag-drop reorder, 2-4 options per question
+- QuizResultsSummary: Score display, performance labels, question review
+- FlashcardViewer: Flip cards, keyboard shortcuts, SM-2 spaced repetition
+- FlashcardEditor: CRUD for flashcards, drag-drop reorder
+- Backend has studySessions, dailyStats, streaks modules for tracking
+
+---

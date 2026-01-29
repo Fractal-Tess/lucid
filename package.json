@@ -1,5 +1,5 @@
 {
-  "name": "lucid",
+  "name": "alpha",
   "private": true,
   "workspaces": {
     "packages": [
@@ -20,18 +20,18 @@
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
-    "dev:server": "turbo -F @lucid/backend dev",
-    "dev:setup": "turbo -F @lucid/backend dev:setup",
+    "dev:server": "turbo -F @alpha/backend dev",
+    "dev:setup": "turbo -F @alpha/backend dev:setup",
     "check": "oxlint && oxfmt --write",
     "shadcn": "bunx shadcn-svelte@latest add $@ -c packages/ui"
   },
   "dependencies": {
-    "@lucid/env": "workspace:*",
+    "@alpha/env": "workspace:*",
     "dotenv": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@lucid/config": "workspace:*",
+    "@alpha/config": "workspace:*",
     "lefthook": "^2.0.15",
     "oxfmt": "^0.26.0",
     "oxlint": "^1.41.0",

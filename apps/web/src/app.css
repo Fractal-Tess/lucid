@@ -1,5 +1,5 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
-@source "../../packages/ui/src/**/*.{html,js,svelte,ts}";
+@source "../../../packages/ui/src/**/*.{html,js,svelte,ts}";
 @import "@lucid/ui/shadcn/css";

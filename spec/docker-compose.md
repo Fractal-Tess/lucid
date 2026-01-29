@@ -32,5 +32,5 @@ services:
 
 networks:
   default:
-    name: lucid-network
+    name: alpha-network
 ```
