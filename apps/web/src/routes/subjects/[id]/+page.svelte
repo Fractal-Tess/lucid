@@ -163,7 +163,7 @@
 						</CardHeader>
 						<CardContent>
 							<div class="grid gap-2">
-								{#each documents.data.filter((d: any) => !d.folderId) as doc}
+								{#each documents.data.filter((d) => !d.folderId) as doc}
 									<div class="flex items-center justify-between p-3 rounded-lg border">
 										<div class="flex items-center gap-3">
 											<FileText class="size-5 text-muted-foreground" />

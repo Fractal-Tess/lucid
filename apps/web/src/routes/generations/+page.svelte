@@ -56,7 +56,7 @@
 	const filteredGenerations = $derived(() => {
 		if (!generations.data) return [];
 		if (filterType === 'all') return generations.data;
-		return generations.data.filter((g: any) => g.type === filterType);
+		return generations.data.filter((g) => g.type === filterType);
 	});
 </script>
 
