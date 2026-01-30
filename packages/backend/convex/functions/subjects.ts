@@ -1,14 +1,35 @@
 import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
+import { mutation, query, type QueryCtx } from "../_generated/server";
+import { authComponent } from "../auth";
+import type { Id } from "../_generated/dataModel";
+
+async function getCurrentUserId(ctx: QueryCtx): Promise<Id<"users"> | null> {
+  try {
+    const authUser = await authComponent.getAuthUser(ctx);
+    if (!authUser) return null;
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_better_auth_id", (q) => q.eq("betterAuthId", authUser._id))
+      .first();
+
+    return user?._id ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export const list = query({
   args: {
-    userId: v.id("users"),
+    userId: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
+    const userId = args.userId ?? (await getCurrentUserId(ctx));
+    if (!userId) return [];
+
     const subjects = await ctx.db
       .query("subjects")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
 
     return subjects.sort((a, b) => a.order - b.order);

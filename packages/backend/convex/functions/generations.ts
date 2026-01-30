@@ -1,5 +1,7 @@
 import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
+import { mutation, query, type QueryCtx } from "../_generated/server";
+import { authComponent } from "../auth";
+import type { Id } from "../_generated/dataModel";
 
 /**
  * Generation type values for validation
@@ -18,27 +20,23 @@ const generationType = v.union(
  */
 const generationStatus = v.union(v.literal("generating"), v.literal("ready"), v.literal("failed"));
 
-import { authComponent } from "../auth";
-
 /**
  * Get the current user's ID from our users table
  */
-async function getCurrentUserId(ctx: any) {
+async function getCurrentUserId(ctx: QueryCtx): Promise<Id<"users"> | null> {
   let authUser;
   try {
     authUser = await authComponent.getAuthUser(ctx);
   } catch {
-    // User is not authenticated
     return null;
   }
   if (!authUser) {
     return null;
   }
 
-  // Look up our user by the Better Auth ID
   const user = await ctx.db
     .query("users")
-    .withIndex("by_better_auth_id", (q: any) => q.eq("betterAuthId", authUser._id))
+    .withIndex("by_better_auth_id", (q) => q.eq("betterAuthId", authUser._id))
     .first();
 
   return user?._id ?? null;
