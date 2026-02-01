@@ -1,6 +1,5 @@
 <script lang="ts">
     import "../app.css";
-    import Header from "../components/Header.svelte";
     import { createSvelteAuthClient } from "@mmailaender/convex-better-auth-svelte/svelte";
     import { authClient } from "$lib/auth-client";
 

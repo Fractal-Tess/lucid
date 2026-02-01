@@ -15,18 +15,19 @@
 
 	const client = useConvexClient();
 	const generationId = $derived($page.params.id);
+	const isValidId = $derived(generationId && generationId !== 'new');
 	
 	const generation = useQuery(api.functions.generations.get, () => 
-		generationId ? { id: generationId as Id<'generations'> } : 'skip'
+		isValidId ? { id: generationId as Id<'generations'> } : 'skip'
 	);
 	const flashcardItems = useQuery(api.functions.flashcardItems.listByGeneration, () => 
-		generationId ? { generationId: generationId as Id<'generations'> } : 'skip'
+		isValidId ? { generationId: generationId as Id<'generations'> } : 'skip'
 	);
 	const quizItems = useQuery(api.functions.quizItems.listByGeneration, () => 
-		generationId ? { generationId: generationId as Id<'generations'> } : 'skip'
+		isValidId ? { generationId: generationId as Id<'generations'> } : 'skip'
 	);
 	const summaryContent = useQuery(api.functions.summaryItems.getByGeneration, () => 
-		generationId ? { generationId: generationId as Id<'generations'> } : 'skip'
+		isValidId ? { generationId: generationId as Id<'generations'> } : 'skip'
 	);
 
 	async function handleRetry() {
