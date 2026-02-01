@@ -2,7 +2,7 @@
 
 ## 2026-02-01 - Home Page Redesign
 
-**Commit:** (to be added after commit)
+**Commit:** f2a7c44
 
 ### Completed
 - Redesigned `apps/web/src/routes/+page.svelte` with "Digital Zen" aesthetic
