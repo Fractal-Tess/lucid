@@ -4,14 +4,20 @@
  * Routes requests to appropriate models via OpenRouter API with automatic fallback.
  */
 
-import { z } from "zod";
-import { type ModelConfig, type TaskType, routerConfig, getModelForTask } from "./router.config.js";
+import { z } from 'zod';
+
+import {
+  type ModelConfig,
+  type TaskType,
+  routerConfig,
+  getModelForTask,
+} from './router.config.js';
 
 /** OpenRouter API base URL */
-const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 /** Message role types */
-export type MessageRole = "system" | "user" | "assistant";
+export type MessageRole = 'system' | 'user' | 'assistant';
 
 /** Chat message */
 export interface Message {
@@ -78,7 +84,7 @@ export class RouterError extends Error {
     public modelId?: string,
   ) {
     super(message);
-    this.name = "RouterError";
+    this.name = 'RouterError';
   }
 }
 
@@ -90,7 +96,11 @@ export class LLMRouter {
   private siteUrl?: string;
   private siteName?: string;
 
-  constructor(options: { apiKey: string; siteUrl?: string; siteName?: string }) {
+  constructor(options: {
+    apiKey: string;
+    siteUrl?: string;
+    siteName?: string;
+  }) {
     this.apiKey = options.apiKey;
     this.siteUrl = options.siteUrl;
     this.siteName = options.siteName;
@@ -106,14 +116,14 @@ export class LLMRouter {
   ): Promise<RouterResponse> {
     const headers: Record<string, string> = {
       Authorization: `Bearer ${this.apiKey}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     };
 
     if (this.siteUrl) {
-      headers["HTTP-Referer"] = this.siteUrl;
+      headers['HTTP-Referer'] = this.siteUrl;
     }
     if (this.siteName) {
-      headers["X-Title"] = this.siteName;
+      headers['X-Title'] = this.siteName;
     }
 
     const body = {
@@ -124,21 +134,25 @@ export class LLMRouter {
     };
 
     const response = await fetch(OPENROUTER_API_URL, {
-      method: "POST",
+      method: 'POST',
       headers,
       body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new RouterError(`OpenRouter API error: ${errorText}`, response.status, model.id);
+      throw new RouterError(
+        `OpenRouter API error: ${errorText}`,
+        response.status,
+        model.id,
+      );
     }
 
     const data = await response.json();
     const parsed = openRouterResponseSchema.parse(data);
 
     return {
-      content: parsed.choices[0]?.message.content ?? "",
+      content: parsed.choices[0]?.message.content ?? '',
       model: parsed.model,
       usage: {
         promptTokens: parsed.usage.prompt_tokens,
@@ -158,7 +172,9 @@ export class LLMRouter {
     if (request.modelOverride) {
       const overrideModel = routerConfig.models[request.modelOverride];
       if (!overrideModel) {
-        throw new RouterError(`Unknown model override: ${request.modelOverride}`);
+        throw new RouterError(
+          `Unknown model override: ${request.modelOverride}`,
+        );
       }
       model = overrideModel;
     } else {
@@ -180,17 +196,23 @@ export class LLMRouter {
       }
 
       // Try fallback chain
-      const fallbackModels = routerConfig.fallbackChain.filter((id) => id !== originalModelId);
+      const fallbackModels = routerConfig.fallbackChain.filter(
+        (id) => id !== originalModelId,
+      );
 
       for (const fallbackId of fallbackModels) {
         const fallbackModel = routerConfig.models[fallbackId];
         if (!fallbackModel) continue;
 
         try {
-          const response = await this.callOpenRouter(fallbackModel, request.messages, {
-            maxTokens: request.maxTokens,
-            temperature: request.temperature,
-          });
+          const response = await this.callOpenRouter(
+            fallbackModel,
+            request.messages,
+            {
+              maxTokens: request.maxTokens,
+              temperature: request.temperature,
+            },
+          );
           return {
             ...response,
             usedFallback: true,
@@ -227,8 +249,8 @@ export class LLMRouter {
     const response = await this.route({
       task,
       messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
       ],
       ...options,
     });
@@ -246,12 +268,12 @@ export function createRouter(options?: {
 }): LLMRouter {
   const apiKey = options?.apiKey ?? process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    throw new Error("OPENROUTER_API_KEY is required");
+    throw new Error('OPENROUTER_API_KEY is required');
   }
 
   return new LLMRouter({
     apiKey,
     siteUrl: options?.siteUrl ?? process.env.PUBLIC_APP_URL,
-    siteName: options?.siteName ?? "Lucid",
+    siteName: options?.siteName ?? 'Alpha',
   });
 }

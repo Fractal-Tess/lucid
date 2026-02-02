@@ -1,17 +1,19 @@
-import { v } from "convex/values";
-import { action, internalMutation, internalQuery } from "../_generated/server";
-import { api, internal } from "../_generated/api";
-import { z } from "zod";
-import type { Id } from "../_generated/dataModel";
+import type { Id } from '../_generated/dataModel';
+
+import { v } from 'convex/values';
+import { z } from 'zod';
+
+import { api, internal } from '../_generated/api';
+import { action, internalMutation, internalQuery } from '../_generated/server';
 
 interface DocumentForGeneration {
-  _id: Id<"documents">;
+  _id: Id<'documents'>;
   name: string;
   extractedText?: string;
 }
 
-const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_MODEL = "deepseek/deepseek-chat";
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const DEFAULT_MODEL = 'deepseek/deepseek-chat';
 
 const QUIZ_SYSTEM_PROMPT = `You are an expert educator creating multiple-choice quizzes for students.
 
@@ -66,7 +68,7 @@ const quizResponseSchema = z.array(
 
 export const getDocumentsForGeneration = internalQuery({
   args: {
-    documentIds: v.array(v.id("documents")),
+    documentIds: v.array(v.id('documents')),
   },
   handler: async (ctx, args): Promise<DocumentForGeneration[]> => {
     const documents: DocumentForGeneration[] = [];
@@ -86,8 +88,12 @@ export const getDocumentsForGeneration = internalQuery({
 
 export const updateGenerationStatus = internalMutation({
   args: {
-    generationId: v.id("generations"),
-    status: v.union(v.literal("generating"), v.literal("ready"), v.literal("failed")),
+    generationId: v.id('generations'),
+    status: v.union(
+      v.literal('generating'),
+      v.literal('ready'),
+      v.literal('failed'),
+    ),
     error: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -101,8 +107,8 @@ export const updateGenerationStatus = internalMutation({
 
 export const createQuizItems = internalMutation({
   args: {
-    generationId: v.id("generations"),
-    userId: v.id("users"),
+    generationId: v.id('generations'),
+    userId: v.id('users'),
     items: v.array(
       v.object({
         question: v.string(),
@@ -120,7 +126,7 @@ export const createQuizItems = internalMutation({
       const item = args.items[i];
       if (!item) continue;
 
-      const id = await ctx.db.insert("quizItems", {
+      const id = await ctx.db.insert('quizItems', {
         generationId: args.generationId,
         userId: args.userId,
         question: item.question,
@@ -142,20 +148,25 @@ async function callOpenRouter(
   documentText: string,
   options?: { maxTokens?: number; temperature?: number },
 ): Promise<
-  Array<{ question: string; options: string[]; correctIndex: number; explanation?: string }>
+  Array<{
+    question: string;
+    options: string[];
+    correctIndex: number;
+    explanation?: string;
+  }>
 > {
   const response = await fetch(OPENROUTER_API_URL, {
-    method: "POST",
+    method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       model: DEFAULT_MODEL,
       messages: [
-        { role: "system", content: QUIZ_SYSTEM_PROMPT },
+        { role: 'system', content: QUIZ_SYSTEM_PROMPT },
         {
-          role: "user",
+          role: 'user',
           content: `Create quiz questions from the following document content:\n\n${documentText}`,
         },
       ],
@@ -175,25 +186,27 @@ async function callOpenRouter(
 
   const content = data.choices[0]?.message?.content;
   if (!content) {
-    throw new Error("No content in OpenRouter response");
+    throw new Error('No content in OpenRouter response');
   }
 
   let parsed: unknown;
   try {
     let jsonString = content.trim();
-    if (jsonString.startsWith("```json")) {
+    if (jsonString.startsWith('```json')) {
       jsonString = jsonString.slice(7);
-    } else if (jsonString.startsWith("```")) {
+    } else if (jsonString.startsWith('```')) {
       jsonString = jsonString.slice(3);
     }
-    if (jsonString.endsWith("```")) {
+    if (jsonString.endsWith('```')) {
       jsonString = jsonString.slice(0, -3);
     }
     jsonString = jsonString.trim();
 
     parsed = JSON.parse(jsonString);
   } catch {
-    throw new Error(`Failed to parse AI response as JSON: ${content.slice(0, 200)}...`);
+    throw new Error(
+      `Failed to parse AI response as JSON: ${content.slice(0, 200)}...`,
+    );
   }
 
   const validated = quizResponseSchema.safeParse(parsed);
@@ -206,9 +219,9 @@ async function callOpenRouter(
 
 export const generateQuiz = action({
   args: {
-    generationId: v.id("generations"),
-    userId: v.id("users"),
-    documentIds: v.array(v.id("documents")),
+    generationId: v.id('generations'),
+    userId: v.id('users'),
+    documentIds: v.array(v.id('documents')),
   },
   handler: async (ctx, args) => {
     const updateStatus = internal.workflows.generateQuiz.updateGenerationStatus;
@@ -221,7 +234,7 @@ export const generateQuiz = action({
       });
 
       if (documents.length === 0) {
-        throw new Error("No documents found");
+        throw new Error('No documents found');
       }
 
       const combinedText = documents
@@ -231,17 +244,17 @@ export const generateQuiz = action({
           }
           return `=== ${doc.name} ===\n${doc.extractedText}`;
         })
-        .join("\n\n");
+        .join('\n\n');
 
       const apiKey = process.env.OPENROUTER_API_KEY;
       if (!apiKey) {
-        throw new Error("OPENROUTER_API_KEY is not configured");
+        throw new Error('OPENROUTER_API_KEY is not configured');
       }
 
       const quizzes = await callOpenRouter(apiKey, combinedText);
 
       if (quizzes.length === 0) {
-        throw new Error("No quiz questions generated");
+        throw new Error('No quiz questions generated');
       }
 
       await ctx.runMutation(createItems, {
@@ -252,7 +265,7 @@ export const generateQuiz = action({
 
       await ctx.runMutation(updateStatus, {
         generationId: args.generationId,
-        status: "ready" as const,
+        status: 'ready' as const,
       });
 
       return {
@@ -261,11 +274,12 @@ export const generateQuiz = action({
         quizCount: quizzes.length,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
 
       await ctx.runMutation(updateStatus, {
         generationId: args.generationId,
-        status: "failed" as const,
+        status: 'failed' as const,
         error: errorMessage,
       });
 
@@ -279,7 +293,7 @@ export const generateQuiz = action({
 
 export const getGenerationForRetry = internalQuery({
   args: {
-    generationId: v.id("generations"),
+    generationId: v.id('generations'),
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.generationId);
@@ -288,7 +302,7 @@ export const getGenerationForRetry = internalQuery({
 
 export const retryGeneration = action({
   args: {
-    generationId: v.id("generations"),
+    generationId: v.id('generations'),
   },
   handler: async (
     ctx,
@@ -299,26 +313,32 @@ export const retryGeneration = action({
     quizCount?: number;
     error?: string;
   }> => {
-    const generation = await ctx.runQuery(internal.workflows.generateQuiz.getGenerationForRetry, {
-      generationId: args.generationId,
-    });
+    const generation = await ctx.runQuery(
+      internal.workflows.generateQuiz.getGenerationForRetry,
+      {
+        generationId: args.generationId,
+      },
+    );
 
     if (!generation) {
-      throw new Error("Generation not found");
+      throw new Error('Generation not found');
     }
 
-    if (generation.status !== "failed") {
-      throw new Error("Can only retry failed generations");
+    if (generation.status !== 'failed') {
+      throw new Error('Can only retry failed generations');
     }
 
-    if (generation.type !== "quiz") {
-      throw new Error("This action only handles quiz generations");
+    if (generation.type !== 'quiz') {
+      throw new Error('This action only handles quiz generations');
     }
 
-    await ctx.runMutation(internal.workflows.generateQuiz.updateGenerationStatus, {
-      generationId: args.generationId,
-      status: "generating" as const,
-    });
+    await ctx.runMutation(
+      internal.workflows.generateQuiz.updateGenerationStatus,
+      {
+        generationId: args.generationId,
+        status: 'generating' as const,
+      },
+    );
 
     return await ctx.runAction(api.workflows.generateQuiz.generateQuiz, {
       generationId: args.generationId,

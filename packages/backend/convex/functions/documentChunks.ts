@@ -1,6 +1,7 @@
-import { v } from "convex/values";
-import { query, mutation } from "../_generated/server";
-import { api } from "../_generated/api";
+import { v } from 'convex/values';
+
+import { api } from '../_generated/api';
+import { query, mutation } from '../_generated/server';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -9,18 +10,18 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
  */
 async function generateQueryEmbedding(text: string): Promise<number[]> {
   if (!OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY not configured");
+    throw new Error('OPENAI_API_KEY not configured');
   }
 
-  const response = await fetch("https://api.openai.com/v1/embeddings", {
-    method: "POST",
+  const response = await fetch('https://api.openai.com/v1/embeddings', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
       input: text,
-      model: "text-embedding-3-small",
+      model: 'text-embedding-3-small',
       dimensions: 1536,
     }),
   });
@@ -42,13 +43,13 @@ async function generateQueryEmbedding(text: string): Promise<number[]> {
  */
 export const listByDocument = query({
   args: {
-    documentId: v.id("documents"),
+    documentId: v.id('documents'),
   },
   handler: async (ctx, args) => {
     return await ctx.db
-      .query("documentChunks")
-      .withIndex("by_document", (q) => q.eq("documentId", args.documentId))
-      .order("asc")
+      .query('documentChunks')
+      .withIndex('by_document', (q) => q.eq('documentId', args.documentId))
+      .order('asc')
       .collect();
   },
 });
@@ -58,7 +59,7 @@ export const listByDocument = query({
  */
 export const get = query({
   args: {
-    id: v.id("documentChunks"),
+    id: v.id('documentChunks'),
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
@@ -70,12 +71,12 @@ export const get = query({
  */
 export const deleteByDocument = mutation({
   args: {
-    documentId: v.id("documents"),
+    documentId: v.id('documents'),
   },
   handler: async (ctx, args) => {
     const chunks = await ctx.db
-      .query("documentChunks")
-      .withIndex("by_document", (q) => q.eq("documentId", args.documentId))
+      .query('documentChunks')
+      .withIndex('by_document', (q) => q.eq('documentId', args.documentId))
       .collect();
 
     for (const chunk of chunks) {
@@ -92,7 +93,7 @@ export const deleteByDocument = mutation({
  */
 export const searchSimilar = query({
   args: {
-    userId: v.id("users"),
+    userId: v.id('users'),
     query: v.string(),
     limit: v.optional(v.number()),
   },
@@ -105,11 +106,11 @@ export const searchSimilar = query({
     // Search for similar chunks using vector index
     // Filter by userId to only search user's own documents
     const results = await ctx.db
-      .query("documentChunks")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .query('documentChunks')
+      .withIndex('by_user', (q) => q.eq('userId', args.userId))
       .filter((q) =>
         // Use vector similarity search
-        q.eq(q.field("embedding"), queryEmbedding as unknown as number[]),
+        q.eq(q.field('embedding'), queryEmbedding as unknown as number[]),
       )
       .take(limit);
 
@@ -130,7 +131,7 @@ export const searchSimilar = query({
  */
 export const searchSimilarInDocument = query({
   args: {
-    documentId: v.id("documents"),
+    documentId: v.id('documents'),
     query: v.string(),
     limit: v.optional(v.number()),
   },
@@ -142,9 +143,11 @@ export const searchSimilarInDocument = query({
 
     // Search for similar chunks within the document
     const results = await ctx.db
-      .query("documentChunks")
-      .withIndex("by_document", (q) => q.eq("documentId", args.documentId))
-      .filter((q) => q.eq(q.field("embedding"), queryEmbedding as unknown as number[]))
+      .query('documentChunks')
+      .withIndex('by_document', (q) => q.eq('documentId', args.documentId))
+      .filter((q) =>
+        q.eq(q.field('embedding'), queryEmbedding as unknown as number[]),
+      )
       .take(limit);
 
     return results.map((chunk) => ({
@@ -162,7 +165,7 @@ export const searchSimilarInDocument = query({
  */
 export const getByIds = query({
   args: {
-    chunkIds: v.array(v.id("documentChunks")),
+    chunkIds: v.array(v.id('documentChunks')),
   },
   handler: async (ctx, args) => {
     const chunks = [];
@@ -181,12 +184,12 @@ export const getByIds = query({
  */
 export const getChunkCount = query({
   args: {
-    documentId: v.id("documents"),
+    documentId: v.id('documents'),
   },
   handler: async (ctx, args) => {
     const chunks = await ctx.db
-      .query("documentChunks")
-      .withIndex("by_document", (q) => q.eq("documentId", args.documentId))
+      .query('documentChunks')
+      .withIndex('by_document', (q) => q.eq('documentId', args.documentId))
       .collect();
 
     return chunks.length;

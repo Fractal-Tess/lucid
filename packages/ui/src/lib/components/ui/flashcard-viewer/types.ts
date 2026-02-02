@@ -28,10 +28,25 @@ export interface RatingButton {
  * Default rating buttons following SM-2 algorithm
  */
 export const DEFAULT_RATING_BUTTONS: RatingButton[] = [
-  { value: 0, label: "Again", description: "Forgot", color: "bg-destructive" },
-  { value: 1, label: "Hard", description: "Barely remembered", color: "bg-orange-500" },
-  { value: 2, label: "Medium", description: "Some difficulty", color: "bg-yellow-500" },
-  { value: 3, label: "Good", description: "Remembered", color: "bg-blue-500" },
-  { value: 4, label: "Easy", description: "Easy", color: "bg-green-500" },
-  { value: 5, label: "Perfect", description: "Perfect recall", color: "bg-emerald-500" },
+  { value: 0, label: 'Again', description: 'Forgot', color: 'bg-destructive' },
+  {
+    value: 1,
+    label: 'Hard',
+    description: 'Barely remembered',
+    color: 'bg-orange-500',
+  },
+  {
+    value: 2,
+    label: 'Medium',
+    description: 'Some difficulty',
+    color: 'bg-yellow-500',
+  },
+  { value: 3, label: 'Good', description: 'Remembered', color: 'bg-blue-500' },
+  { value: 4, label: 'Easy', description: 'Easy', color: 'bg-green-500' },
+  {
+    value: 5,
+    label: 'Perfect',
+    description: 'Perfect recall',
+    color: 'bg-emerald-500',
+  },
 ];

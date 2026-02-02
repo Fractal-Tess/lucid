@@ -1,16 +1,18 @@
-import { v } from "convex/values";
-import { mutation, query, type QueryCtx } from "../_generated/server";
-import { authComponent } from "../auth";
-import type { Id } from "../_generated/dataModel";
+import type { Id } from '../_generated/dataModel';
 
-async function getCurrentUserId(ctx: QueryCtx): Promise<Id<"users"> | null> {
+import { v } from 'convex/values';
+
+import { mutation, query, type QueryCtx } from '../_generated/server';
+import { authComponent } from '../auth';
+
+async function getCurrentUserId(ctx: QueryCtx): Promise<Id<'users'> | null> {
   try {
     const authUser = await authComponent.getAuthUser(ctx);
     if (!authUser) return null;
 
     const user = await ctx.db
-      .query("users")
-      .withIndex("by_better_auth_id", (q) => q.eq("betterAuthId", authUser._id))
+      .query('users')
+      .withIndex('by_better_auth_id', (q) => q.eq('betterAuthId', authUser._id))
       .first();
 
     return user?._id ?? null;
@@ -21,15 +23,15 @@ async function getCurrentUserId(ctx: QueryCtx): Promise<Id<"users"> | null> {
 
 export const list = query({
   args: {
-    userId: v.optional(v.id("users")),
+    userId: v.optional(v.id('users')),
   },
   handler: async (ctx, args) => {
     const userId = args.userId ?? (await getCurrentUserId(ctx));
     if (!userId) return [];
 
     const subjects = await ctx.db
-      .query("subjects")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .query('subjects')
+      .withIndex('by_user', (q) => q.eq('userId', userId))
       .collect();
 
     return subjects.sort((a, b) => a.order - b.order);
@@ -38,12 +40,12 @@ export const list = query({
 
 export const listByGroup = query({
   args: {
-    groupId: v.optional(v.id("subjectGroups")),
+    groupId: v.optional(v.id('subjectGroups')),
   },
   handler: async (ctx, args) => {
     const subjects = await ctx.db
-      .query("subjects")
-      .withIndex("by_group", (q) => q.eq("groupId", args.groupId))
+      .query('subjects')
+      .withIndex('by_group', (q) => q.eq('groupId', args.groupId))
       .collect();
 
     return subjects.sort((a, b) => a.order - b.order);
@@ -52,12 +54,12 @@ export const listByGroup = query({
 
 export const listUngrouped = query({
   args: {
-    userId: v.id("users"),
+    userId: v.id('users'),
   },
   handler: async (ctx, args) => {
     const allSubjects = await ctx.db
-      .query("subjects")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .query('subjects')
+      .withIndex('by_user', (q) => q.eq('userId', args.userId))
       .collect();
 
     const ungrouped = allSubjects.filter((s) => s.groupId === undefined);
@@ -67,7 +69,7 @@ export const listUngrouped = query({
 
 export const get = query({
   args: {
-    id: v.id("subjects"),
+    id: v.id('subjects'),
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
@@ -76,8 +78,8 @@ export const get = query({
 
 export const create = mutation({
   args: {
-    userId: v.id("users"),
-    groupId: v.optional(v.id("subjectGroups")),
+    userId: v.id('users'),
+    groupId: v.optional(v.id('subjectGroups')),
     name: v.string(),
     description: v.optional(v.string()),
     icon: v.optional(v.string()),
@@ -85,14 +87,19 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const existingSubjects = await ctx.db
-      .query("subjects")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .query('subjects')
+      .withIndex('by_user', (q) => q.eq('userId', args.userId))
       .collect();
 
-    const sameGroupSubjects = existingSubjects.filter((s) => s.groupId === args.groupId);
-    const maxOrder = sameGroupSubjects.reduce((max, s) => Math.max(max, s.order), -1);
+    const sameGroupSubjects = existingSubjects.filter(
+      (s) => s.groupId === args.groupId,
+    );
+    const maxOrder = sameGroupSubjects.reduce(
+      (max, s) => Math.max(max, s.order),
+      -1,
+    );
 
-    const id = await ctx.db.insert("subjects", {
+    const id = await ctx.db.insert('subjects', {
       userId: args.userId,
       groupId: args.groupId,
       name: args.name,
@@ -109,24 +116,25 @@ export const create = mutation({
 
 export const update = mutation({
   args: {
-    id: v.id("subjects"),
+    id: v.id('subjects'),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
     icon: v.optional(v.string()),
     color: v.optional(v.string()),
-    groupId: v.optional(v.union(v.id("subjectGroups"), v.null())),
+    groupId: v.optional(v.union(v.id('subjectGroups'), v.null())),
   },
   handler: async (ctx, args) => {
     const { id, groupId, ...updates } = args;
 
     const existing = await ctx.db.get(id);
     if (!existing) {
-      throw new Error("Subject not found");
+      throw new Error('Subject not found');
     }
 
     const filteredUpdates: Record<string, unknown> = {};
     if (updates.name !== undefined) filteredUpdates.name = updates.name;
-    if (updates.description !== undefined) filteredUpdates.description = updates.description;
+    if (updates.description !== undefined)
+      filteredUpdates.description = updates.description;
     if (updates.icon !== undefined) filteredUpdates.icon = updates.icon;
     if (updates.color !== undefined) filteredUpdates.color = updates.color;
 
@@ -141,17 +149,17 @@ export const update = mutation({
 
 export const remove = mutation({
   args: {
-    id: v.id("subjects"),
+    id: v.id('subjects'),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db.get(args.id);
     if (!existing) {
-      throw new Error("Subject not found");
+      throw new Error('Subject not found');
     }
 
     const folders = await ctx.db
-      .query("folders")
-      .withIndex("by_subject", (q) => q.eq("subjectId", args.id))
+      .query('folders')
+      .withIndex('by_subject', (q) => q.eq('subjectId', args.id))
       .collect();
 
     for (const folder of folders) {
@@ -159,8 +167,8 @@ export const remove = mutation({
     }
 
     const documents = await ctx.db
-      .query("documents")
-      .withIndex("by_subject", (q) => q.eq("subjectId", args.id))
+      .query('documents')
+      .withIndex('by_subject', (q) => q.eq('subjectId', args.id))
       .collect();
 
     for (const doc of documents) {
@@ -168,8 +176,8 @@ export const remove = mutation({
     }
 
     const generations = await ctx.db
-      .query("generations")
-      .withIndex("by_subject", (q) => q.eq("subjectId", args.id))
+      .query('generations')
+      .withIndex('by_subject', (q) => q.eq('subjectId', args.id))
       .collect();
 
     for (const gen of generations) {
@@ -183,9 +191,9 @@ export const remove = mutation({
 
 export const reorder = mutation({
   args: {
-    userId: v.id("users"),
-    groupId: v.optional(v.id("subjectGroups")),
-    orderedIds: v.array(v.id("subjects")),
+    userId: v.id('users'),
+    groupId: v.optional(v.id('subjectGroups')),
+    orderedIds: v.array(v.id('subjects')),
   },
   handler: async (ctx, args) => {
     for (let i = 0; i < args.orderedIds.length; i++) {
@@ -209,21 +217,24 @@ export const reorder = mutation({
 
 export const moveToGroup = mutation({
   args: {
-    id: v.id("subjects"),
-    groupId: v.optional(v.id("subjectGroups")),
+    id: v.id('subjects'),
+    groupId: v.optional(v.id('subjectGroups')),
   },
   handler: async (ctx, args) => {
     const subject = await ctx.db.get(args.id);
     if (!subject) {
-      throw new Error("Subject not found");
+      throw new Error('Subject not found');
     }
 
     const targetGroupSubjects = await ctx.db
-      .query("subjects")
-      .withIndex("by_group", (q) => q.eq("groupId", args.groupId))
+      .query('subjects')
+      .withIndex('by_group', (q) => q.eq('groupId', args.groupId))
       .collect();
 
-    const maxOrder = targetGroupSubjects.reduce((max, s) => Math.max(max, s.order), -1);
+    const maxOrder = targetGroupSubjects.reduce(
+      (max, s) => Math.max(max, s.order),
+      -1,
+    );
 
     await ctx.db.patch(args.id, {
       groupId: args.groupId,

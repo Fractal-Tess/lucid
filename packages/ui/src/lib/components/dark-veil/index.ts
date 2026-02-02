@@ -1,1 +1,1 @@
-export { default as DarkVeil } from "./DarkVeil.svelte";
+export { default as DarkVeil } from './DarkVeil.svelte';

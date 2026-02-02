@@ -5,14 +5,21 @@
  */
 
 /** Task types supported by the router */
-export type TaskType = "flashcard" | "quiz" | "summary" | "notes" | "explain" | "classify" | "chat";
+export type TaskType =
+  | 'flashcard'
+  | 'quiz'
+  | 'summary'
+  | 'notes'
+  | 'explain'
+  | 'classify'
+  | 'chat';
 
 /** Model configuration for OpenRouter */
 export interface ModelConfig {
   /** Unique identifier for this model config */
   id: string;
   /** Provider (always openrouter for now) */
-  provider: "openrouter";
+  provider: 'openrouter';
   /** Model identifier on OpenRouter */
   model: string;
   /** Cost per 1k tokens in USD */
@@ -48,57 +55,57 @@ export interface RouterConfig {
 /** Default router configuration */
 export const routerConfig: RouterConfig = {
   classifier: {
-    id: "classifier",
-    provider: "openrouter",
-    model: "deepseek/deepseek-chat",
+    id: 'classifier',
+    provider: 'openrouter',
+    model: 'deepseek/deepseek-chat',
     costPer1kTokens: 0.0001,
     maxTokens: 100,
   },
 
   models: {
-    "deepseek-v3": {
-      id: "deepseek-v3",
-      provider: "openrouter",
-      model: "deepseek/deepseek-chat-v3",
+    'deepseek-v3': {
+      id: 'deepseek-v3',
+      provider: 'openrouter',
+      model: 'deepseek/deepseek-chat-v3',
       costPer1kTokens: 0.0002,
       maxTokens: 8192,
     },
-    "deepseek-r1": {
-      id: "deepseek-r1",
-      provider: "openrouter",
-      model: "deepseek/deepseek-r1",
+    'deepseek-r1': {
+      id: 'deepseek-r1',
+      provider: 'openrouter',
+      model: 'deepseek/deepseek-r1',
       costPer1kTokens: 0.001,
       maxTokens: 8192,
     },
-    "claude-haiku": {
-      id: "claude-haiku",
-      provider: "openrouter",
-      model: "anthropic/claude-3-haiku",
+    'claude-haiku': {
+      id: 'claude-haiku',
+      provider: 'openrouter',
+      model: 'anthropic/claude-3-haiku',
       costPer1kTokens: 0.00025,
       maxTokens: 4096,
     },
-    "claude-sonnet": {
-      id: "claude-sonnet",
-      provider: "openrouter",
-      model: "anthropic/claude-3.5-sonnet",
+    'claude-sonnet': {
+      id: 'claude-sonnet',
+      provider: 'openrouter',
+      model: 'anthropic/claude-3.5-sonnet',
       costPer1kTokens: 0.003,
       maxTokens: 8192,
     },
   },
 
-  defaultModel: "deepseek-v3",
+  defaultModel: 'deepseek-v3',
 
-  fallbackChain: ["deepseek-v3", "claude-haiku", "claude-sonnet"],
+  fallbackChain: ['deepseek-v3', 'claude-haiku', 'claude-sonnet'],
 
   rules: [
-    { task: "classify", model: "deepseek-v3" },
-    { task: "flashcard", model: "deepseek-v3" },
-    { task: "quiz", model: "deepseek-v3" },
-    { task: "summary", model: "deepseek-v3" },
-    { task: "notes", model: "deepseek-v3" },
-    { task: "chat", model: "deepseek-v3" },
-    { task: "explain", condition: "complexity > 0.7", model: "claude-sonnet" },
-    { task: "explain", model: "deepseek-v3" },
+    { task: 'classify', model: 'deepseek-v3' },
+    { task: 'flashcard', model: 'deepseek-v3' },
+    { task: 'quiz', model: 'deepseek-v3' },
+    { task: 'summary', model: 'deepseek-v3' },
+    { task: 'notes', model: 'deepseek-v3' },
+    { task: 'chat', model: 'deepseek-v3' },
+    { task: 'explain', condition: 'complexity > 0.7', model: 'claude-sonnet' },
+    { task: 'explain', model: 'deepseek-v3' },
   ],
 };
 
@@ -112,7 +119,10 @@ export function getModelConfig(modelId: string): ModelConfig | undefined {
 /**
  * Get the model to use for a given task and optional complexity score
  */
-export function getModelForTask(task: TaskType, complexity?: number): ModelConfig {
+export function getModelForTask(
+  task: TaskType,
+  complexity?: number,
+): ModelConfig {
   for (const rule of routerConfig.rules) {
     if (rule.task !== task) continue;
 
@@ -125,20 +135,20 @@ export function getModelForTask(task: TaskType, complexity?: number): ModelConfi
 
         let conditionMet = false;
         switch (operator) {
-          case ">":
+          case '>':
             conditionMet = complexity > thresholdNum;
             break;
-          case ">=":
+          case '>=':
             conditionMet = complexity >= thresholdNum;
             break;
-          case "<":
+          case '<':
             conditionMet = complexity < thresholdNum;
             break;
-          case "<=":
+          case '<=':
             conditionMet = complexity <= thresholdNum;
             break;
-          case "=":
-          case "==":
+          case '=':
+          case '==':
             conditionMet = complexity === thresholdNum;
             break;
         }
@@ -158,7 +168,9 @@ export function getModelForTask(task: TaskType, complexity?: number): ModelConfi
   // Fallback to default model
   const defaultModel = routerConfig.models[routerConfig.defaultModel];
   if (!defaultModel) {
-    throw new Error(`Default model ${routerConfig.defaultModel} not configured`);
+    throw new Error(
+      `Default model ${routerConfig.defaultModel} not configured`,
+    );
   }
   return defaultModel;
 }

@@ -2,7 +2,9 @@
 
 ## Overview
 
-A stunning dark-themed landing page with the DarkVeil animated WebGL background, featuring a centered hero section with the Alpha logo, headline, and a single call-to-action button.
+A stunning dark-themed landing page with the DarkVeil animated WebGL background,
+featuring a centered hero section with the Alpha logo, headline, and a single
+call-to-action button.
 
 ---
 
@@ -68,7 +70,8 @@ A stunning dark-themed landing page with the DarkVeil animated WebGL background,
 
 ### Visual Effect
 
-- **Type**: Animated WebGL shader background using CPPN (Compositional Pattern Producing Network)
+- **Type**: Animated WebGL shader background using CPPN (Compositional Pattern
+  Producing Network)
 - **Animation**: Organic, flowing patterns that evolve over time
 - **Colors**: Deep purples, blues, and magentas with smooth gradients
 - **Speed**: Slow, hypnotic movement (configurable via `speed` prop)
@@ -90,15 +93,12 @@ A stunning dark-themed landing page with the DarkVeil animated WebGL background,
 
 ## Hero Section
 
-**Position**: Centered vertically and horizontally
-**Max-width**: 800px
-**Text-align**: Center
-**Z-index**: Above background (z-10)
+**Position**: Centered vertically and horizontally **Max-width**: 800px
+**Text-align**: Center **Z-index**: Above background (z-10)
 
 ### Logo Section
 
-**Layout**: Centered, stacked vertically
-**Margin-bottom**: 32px
+**Layout**: Centered, stacked vertically **Margin-bottom**: 32px
 
 #### Logo Icon
 
@@ -120,8 +120,8 @@ A stunning dark-themed landing page with the DarkVeil animated WebGL background,
 
 ## Headline
 
-**Text**: "Master Your Studies with AI-Powered Learning Tools"
-**Alternative**: "Your Personal AI Study Companion"
+**Text**: "Master Your Studies with AI-Powered Learning Tools" **Alternative**:
+"Your Personal AI Study Companion"
 
 - **Font-size**: 48px (desktop) / 32px (mobile)
 - **Font-weight**: 700
@@ -134,7 +134,8 @@ A stunning dark-themed landing page with the DarkVeil animated WebGL background,
 
 ## Subheadline
 
-**Text**: "Upload your materials, chat with AI, generate flashcards, quizzes, and more."
+**Text**: "Upload your materials, chat with AI, generate flashcards, quizzes,
+and more."
 
 - **Font-size**: 18px
 - **Font-weight**: 400
@@ -179,7 +180,8 @@ A stunning dark-themed landing page with the DarkVeil animated WebGL background,
 
 ## Typography
 
-- **Font Family**: System sans-serif (-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif)
+- **Font Family**: System sans-serif (-apple-system, BlinkMacSystemFont, 'Segoe
+  UI', Roboto, 'Helvetica Neue', sans-serif)
 - **Logo text**: 32px, font-weight 700, letter-spacing 0.05em
 - **Headline**: 48px (desktop) / 32px (mobile), font-weight 700, line-height 1.2
 - **Subheadline**: 18px, font-weight 400, line-height 1.6
@@ -329,4 +331,5 @@ Home Page
 5. **FAQ**: Accordion-style questions
 6. **Footer**: Links, social, copyright
 
-These would follow the same dark theme with the DarkVeil background continuing or transitioning to a static dark background.
+These would follow the same dark theme with the DarkVeil background continuing
+or transitioning to a static dark background.

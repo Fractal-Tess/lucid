@@ -7,7 +7,8 @@
 
 ## OVERVIEW
 
-Shared component library with ~70 shadcn-svelte components plus custom study-focused components (flashcards, quizzes, notes, summaries).
+Shared component library with ~70 shadcn-svelte components plus custom
+study-focused components (flashcards, quizzes, notes, summaries).
 
 ---
 
@@ -93,6 +94,8 @@ bun run test:e2e                 # Playwright
 ## NOTES
 
 - **~70 components** total (60 shadcn + 10 custom)
-- Custom: flashcard-editor, flashcard-viewer, quiz-editor, quiz-viewer, notes-editor, notes-viewer, summary-editor, summary-viewer, file-tree, dark-veil
+- Custom: flashcard-editor, flashcard-viewer, quiz-editor, quiz-viewer,
+  notes-editor, notes-viewer, summary-editor, summary-viewer, file-tree,
+  dark-veil
 - Test routes in `src/routes/` for isolated component development (not exported)
 - Uses `bits-ui` primitives under the hood

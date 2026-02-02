@@ -4,15 +4,16 @@
  * Classifies task complexity to help with model routing decisions.
  */
 
-import { z } from "zod";
-import type { LLMRouter } from "./router.js";
+import type { LLMRouter } from './router.js';
+
+import { z } from 'zod';
 
 /** Complexity classification result */
 export interface ComplexityResult {
   /** Complexity score from 0 to 1 */
   score: number;
   /** Classification label */
-  level: "simple" | "moderate" | "complex";
+  level: 'simple' | 'moderate' | 'complex';
   /** Reasoning for the classification */
   reasoning: string;
 }
@@ -20,7 +21,7 @@ export interface ComplexityResult {
 /** Schema for classifier response */
 const classifierResponseSchema = z.object({
   score: z.number().min(0).max(1),
-  level: z.enum(["simple", "moderate", "complex"]),
+  level: z.enum(['simple', 'moderate', 'complex']),
   reasoning: z.string(),
 });
 
@@ -49,13 +50,17 @@ export async function classifyComplexity(
   content: string,
 ): Promise<ComplexityResult> {
   // Truncate content if too long
-  const truncatedContent = content.length > 5000 ? content.slice(0, 5000) + "..." : content;
+  const truncatedContent =
+    content.length > 5000 ? content.slice(0, 5000) + '...' : content;
 
   const response = await router.route({
-    task: "classify",
+    task: 'classify',
     messages: [
-      { role: "system", content: CLASSIFIER_SYSTEM_PROMPT },
-      { role: "user", content: `Classify the complexity of this content:\n\n${truncatedContent}` },
+      { role: 'system', content: CLASSIFIER_SYSTEM_PROMPT },
+      {
+        role: 'user',
+        content: `Classify the complexity of this content:\n\n${truncatedContent}`,
+      },
     ],
     maxTokens: 200,
     temperature: 0.3,
@@ -68,8 +73,9 @@ export async function classifyComplexity(
     // If parsing fails, return a default moderate complexity
     return {
       score: 0.5,
-      level: "moderate",
-      reasoning: "Failed to parse classifier response, defaulting to moderate complexity.",
+      level: 'moderate',
+      reasoning:
+        'Failed to parse classifier response, defaulting to moderate complexity.',
     };
   }
 }
@@ -113,7 +119,8 @@ export function estimateComplexity(content: string): ComplexityResult {
   // Factor 3: Sentence complexity (average sentence length)
   const sentences = content.split(/[.!?]+/).filter((s) => s.trim().length > 0);
   const avgSentenceLength =
-    sentences.reduce((acc, s) => acc + s.split(/\s+/).length, 0) / Math.max(sentences.length, 1);
+    sentences.reduce((acc, s) => acc + s.split(/\s+/).length, 0) /
+    Math.max(sentences.length, 1);
 
   let sentenceScore: number;
   if (avgSentenceLength < 10) {
@@ -138,13 +145,13 @@ export function estimateComplexity(content: string): ComplexityResult {
   const score = weightedSum / totalWeight;
 
   // Determine level
-  let level: "simple" | "moderate" | "complex";
+  let level: 'simple' | 'moderate' | 'complex';
   if (score < 0.35) {
-    level = "simple";
+    level = 'simple';
   } else if (score < 0.65) {
-    level = "moderate";
+    level = 'moderate';
   } else {
-    level = "complex";
+    level = 'complex';
   }
 
   return {

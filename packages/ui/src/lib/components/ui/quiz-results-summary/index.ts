@@ -1,4 +1,4 @@
-export { default } from "./quiz-results-summary.svelte";
+export { default } from './quiz-results-summary.svelte';
 export type {
   QuizResultsSummaryProps,
   QuizItem,
@@ -6,4 +6,4 @@ export type {
   QuizResults,
   QuestionReview,
   QuizPerformanceMetrics,
-} from "./types.js";
+} from './types.js';

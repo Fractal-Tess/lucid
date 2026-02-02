@@ -2,7 +2,8 @@
 
 ## Overview
 
-Three-column study/research interface with dark theme. The layout consists of a Sources panel (left), Chat panel (center), and Studio panel (right).
+Three-column study/research interface with dark theme. The layout consists of a
+Sources panel (left), Chat panel (center), and Studio panel (right).
 
 ---
 
@@ -78,9 +79,8 @@ Three-column study/research interface with dark theme. The layout consists of a 
 
 ## Top Navigation Bar
 
-**Height**: 48px
-**Background**: `#1a1a1a`
-**Border-bottom**: 1px solid `#2a2a2a`
+**Height**: 48px **Background**: `#1a1a1a` **Border-bottom**: 1px solid
+`#2a2a2a`
 
 ### Left Section
 
@@ -102,9 +102,7 @@ Three-column study/research interface with dark theme. The layout consists of a 
 
 ## Left Panel: Sources
 
-**Width**: 280px
-**Background**: `#1a1a1a`
-**Border-right**: 1px solid `#2a2a2a`
+**Width**: 280px **Background**: `#1a1a1a` **Border-right**: 1px solid `#2a2a2a`
 
 ### Header
 
@@ -114,7 +112,8 @@ Three-column study/research interface with dark theme. The layout consists of a 
 ### Add Sources Section
 
 - **+ Add sources** button: Full-width, centered, bordered, rounded (8px)
-- **🔍 Try Deep Research** banner: Green gradient background, text "Try Deep Research for an in-depth report and new sources!"
+- **🔍 Try Deep Research** banner: Green gradient background, text "Try Deep
+  Research for an in-depth report and new sources!"
 
 ### Search Bar
 
@@ -136,8 +135,7 @@ Three-column study/research interface with dark theme. The layout consists of a 
 
 ## Center Panel: Chat
 
-**Background**: `#1a1a1a`
-**Flex**: 1 (takes remaining space)
+**Background**: `#1a1a1a` **Flex**: 1 (takes remaining space)
 
 ### Header
 
@@ -170,8 +168,8 @@ Messages displayed as rich text with:
 
 ### Input Area
 
-**Position**: Fixed at bottom of chat panel
-**Background**: `#1a1a1a` with top border
+**Position**: Fixed at bottom of chat panel **Background**: `#1a1a1a` with top
+border
 
 - **Input field**:
   - Placeholder: "Start typing..."
@@ -185,9 +183,7 @@ Messages displayed as rich text with:
 
 ## Right Panel: Studio
 
-**Width**: 320px
-**Background**: `#1a1a1a`
-**Border-left**: 1px solid `#2a2a2a`
+**Width**: 320px **Background**: `#1a1a1a` **Border-left**: 1px solid `#2a2a2a`
 
 ### Header
 
@@ -196,9 +192,7 @@ Messages displayed as rich text with:
 
 ### Tools Grid (3x3)
 
-**Card size**: ~100px x 80px
-**Gap**: 8px
-**Border-radius**: 12px
+**Card size**: ~100px x 80px **Gap**: 8px **Border-radius**: 12px
 
 | Tool           | Icon | Background                  |
 | -------------- | ---- | --------------------------- |
@@ -276,7 +270,8 @@ Examples shown:
 
 ## Typography
 
-- **Font Family**: System sans-serif (-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif)
+- **Font Family**: System sans-serif (-apple-system, BlinkMacSystemFont, 'Segoe
+  UI', Roboto, sans-serif)
 - **Top nav title**: 14px, font-weight 500
 - **Panel headers**: 14px, font-weight 600
 - **Section headers in chat**: 14px, font-weight 600

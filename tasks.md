@@ -21,7 +21,6 @@
 
 ### Organization System
 
-- [x] Redesign Home Page (Digital Zen aesthetic)
 - [x] Subject Groups CRUD (create, read, update, delete)
 - [x] Subjects CRUD with icons/colors
 - [x] Folders CRUD with nesting support

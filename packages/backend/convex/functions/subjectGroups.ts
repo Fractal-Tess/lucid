@@ -1,15 +1,40 @@
-import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
-import type { Id } from "../_generated/dataModel";
+import type { Id } from '../_generated/dataModel';
+
+import { v } from 'convex/values';
+
+import { mutation, query, type QueryCtx } from '../_generated/server';
+import { authComponent } from '../auth';
+
+/**
+ * Get the current user's ID from our users table
+ */
+async function getCurrentUserId(ctx: QueryCtx): Promise<Id<'users'> | null> {
+  try {
+    const authUser = await authComponent.getAuthUser(ctx);
+    if (!authUser) return null;
+
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_better_auth_id', (q) => q.eq('betterAuthId', authUser._id))
+      .first();
+
+    return user?._id ?? null;
+  } catch {
+    return null;
+  }
+}
 
 export const list = query({
   args: {
-    userId: v.id("users"),
+    userId: v.optional(v.id('users')),
   },
   handler: async (ctx, args) => {
+    const userId = args.userId ?? (await getCurrentUserId(ctx));
+    if (!userId) return [];
+
     const groups = await ctx.db
-      .query("subjectGroups")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .query('subjectGroups')
+      .withIndex('by_user', (q) => q.eq('userId', userId))
       .collect();
 
     return groups.sort((a, b) => a.order - b.order);
@@ -18,7 +43,7 @@ export const list = query({
 
 export const get = query({
   args: {
-    id: v.id("subjectGroups"),
+    id: v.id('subjectGroups'),
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
@@ -27,20 +52,23 @@ export const get = query({
 
 export const create = mutation({
   args: {
-    userId: v.id("users"),
+    userId: v.id('users'),
     name: v.string(),
     description: v.optional(v.string()),
     color: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const existingGroups = await ctx.db
-      .query("subjectGroups")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .query('subjectGroups')
+      .withIndex('by_user', (q) => q.eq('userId', args.userId))
       .collect();
 
-    const maxOrder = existingGroups.reduce((max, g) => Math.max(max, g.order), -1);
+    const maxOrder = existingGroups.reduce(
+      (max, g) => Math.max(max, g.order),
+      -1,
+    );
 
-    const id = await ctx.db.insert("subjectGroups", {
+    const id = await ctx.db.insert('subjectGroups', {
       userId: args.userId,
       name: args.name,
       description: args.description,
@@ -55,7 +83,7 @@ export const create = mutation({
 
 export const update = mutation({
   args: {
-    id: v.id("subjectGroups"),
+    id: v.id('subjectGroups'),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
     color: v.optional(v.string()),
@@ -65,12 +93,13 @@ export const update = mutation({
 
     const existing = await ctx.db.get(id);
     if (!existing) {
-      throw new Error("Subject group not found");
+      throw new Error('Subject group not found');
     }
 
     const filteredUpdates: Partial<typeof existing> = {};
     if (updates.name !== undefined) filteredUpdates.name = updates.name;
-    if (updates.description !== undefined) filteredUpdates.description = updates.description;
+    if (updates.description !== undefined)
+      filteredUpdates.description = updates.description;
     if (updates.color !== undefined) filteredUpdates.color = updates.color;
 
     await ctx.db.patch(id, filteredUpdates);
@@ -80,17 +109,17 @@ export const update = mutation({
 
 export const remove = mutation({
   args: {
-    id: v.id("subjectGroups"),
+    id: v.id('subjectGroups'),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db.get(args.id);
     if (!existing) {
-      throw new Error("Subject group not found");
+      throw new Error('Subject group not found');
     }
 
     const subjects = await ctx.db
-      .query("subjects")
-      .withIndex("by_group", (q) => q.eq("groupId", args.id))
+      .query('subjects')
+      .withIndex('by_group', (q) => q.eq('groupId', args.id))
       .collect();
 
     for (const subject of subjects) {
@@ -104,8 +133,8 @@ export const remove = mutation({
 
 export const reorder = mutation({
   args: {
-    userId: v.id("users"),
-    orderedIds: v.array(v.id("subjectGroups")),
+    userId: v.id('users'),
+    orderedIds: v.array(v.id('subjectGroups')),
   },
   handler: async (ctx, args) => {
     for (let i = 0; i < args.orderedIds.length; i++) {

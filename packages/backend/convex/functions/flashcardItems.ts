@@ -1,5 +1,6 @@
-import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
+import { v } from 'convex/values';
+
+import { mutation, query } from '../_generated/server';
 
 /**
  * SM-2 Algorithm Constants
@@ -54,7 +55,8 @@ export function calculateSM2(input: SM2Input): SM2Output {
   }
 
   // Update ease factor using SM-2 formula
-  newEaseFactor = easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+  newEaseFactor =
+    easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
   newEaseFactor = Math.max(MIN_EASE_FACTOR, newEaseFactor);
 
   const nextReview = Date.now() + newInterval * 24 * 60 * 60 * 1000;
@@ -72,12 +74,14 @@ export function calculateSM2(input: SM2Input): SM2Output {
  */
 export const listByGeneration = query({
   args: {
-    generationId: v.id("generations"),
+    generationId: v.id('generations'),
   },
   handler: async (ctx, args) => {
     return await ctx.db
-      .query("flashcardItems")
-      .withIndex("by_generation", (q) => q.eq("generationId", args.generationId))
+      .query('flashcardItems')
+      .withIndex('by_generation', (q) =>
+        q.eq('generationId', args.generationId),
+      )
       .collect();
   },
 });
@@ -87,7 +91,7 @@ export const listByGeneration = query({
  */
 export const getDueCards = query({
   args: {
-    userId: v.id("users"),
+    userId: v.id('users'),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
@@ -95,8 +99,10 @@ export const getDueCards = query({
     const limit = args.limit ?? 50;
 
     const cards = await ctx.db
-      .query("flashcardItems")
-      .withIndex("by_user_next_review", (q) => q.eq("userId", args.userId).lte("nextReview", now))
+      .query('flashcardItems')
+      .withIndex('by_user_next_review', (q) =>
+        q.eq('userId', args.userId).lte('nextReview', now),
+      )
       .take(limit);
 
     return cards;
@@ -108,7 +114,7 @@ export const getDueCards = query({
  */
 export const get = query({
   args: {
-    id: v.id("flashcardItems"),
+    id: v.id('flashcardItems'),
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
@@ -120,8 +126,8 @@ export const get = query({
  */
 export const create = mutation({
   args: {
-    generationId: v.id("generations"),
-    userId: v.id("users"),
+    generationId: v.id('generations'),
+    userId: v.id('users'),
     question: v.string(),
     answer: v.string(),
     order: v.number(),
@@ -130,14 +136,14 @@ export const create = mutation({
     // Verify generation exists and is of type flashcards
     const generation = await ctx.db.get(args.generationId);
     if (!generation) {
-      throw new Error("Generation not found");
+      throw new Error('Generation not found');
     }
-    if (generation.type !== "flashcards") {
-      throw new Error("Generation is not a flashcard generation");
+    if (generation.type !== 'flashcards') {
+      throw new Error('Generation is not a flashcard generation');
     }
 
     const now = Date.now();
-    const id = await ctx.db.insert("flashcardItems", {
+    const id = await ctx.db.insert('flashcardItems', {
       generationId: args.generationId,
       userId: args.userId,
       question: args.question,
@@ -159,8 +165,8 @@ export const create = mutation({
  */
 export const createBatch = mutation({
   args: {
-    generationId: v.id("generations"),
-    userId: v.id("users"),
+    generationId: v.id('generations'),
+    userId: v.id('users'),
     items: v.array(
       v.object({
         question: v.string(),
@@ -172,10 +178,10 @@ export const createBatch = mutation({
     // Verify generation exists and is of type flashcards
     const generation = await ctx.db.get(args.generationId);
     if (!generation) {
-      throw new Error("Generation not found");
+      throw new Error('Generation not found');
     }
-    if (generation.type !== "flashcards") {
-      throw new Error("Generation is not a flashcard generation");
+    if (generation.type !== 'flashcards') {
+      throw new Error('Generation is not a flashcard generation');
     }
 
     const now = Date.now();
@@ -185,7 +191,7 @@ export const createBatch = mutation({
       const item = args.items[i];
       if (!item) continue;
 
-      const id = await ctx.db.insert("flashcardItems", {
+      const id = await ctx.db.insert('flashcardItems', {
         generationId: args.generationId,
         userId: args.userId,
         question: item.question,
@@ -209,14 +215,14 @@ export const createBatch = mutation({
  */
 export const update = mutation({
   args: {
-    id: v.id("flashcardItems"),
+    id: v.id('flashcardItems'),
     question: v.optional(v.string()),
     answer: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db.get(args.id);
     if (!existing) {
-      throw new Error("Flashcard item not found");
+      throw new Error('Flashcard item not found');
     }
 
     const updates: { question?: string; answer?: string } = {};
@@ -233,17 +239,17 @@ export const update = mutation({
  */
 export const recordReview = mutation({
   args: {
-    id: v.id("flashcardItems"),
+    id: v.id('flashcardItems'),
     quality: v.number(), // 0-5 rating
   },
   handler: async (ctx, args) => {
     if (args.quality < 0 || args.quality > 5) {
-      throw new Error("Quality must be between 0 and 5");
+      throw new Error('Quality must be between 0 and 5');
     }
 
     const existing = await ctx.db.get(args.id);
     if (!existing) {
-      throw new Error("Flashcard item not found");
+      throw new Error('Flashcard item not found');
     }
 
     const sm2Result = calculateSM2({
@@ -273,8 +279,8 @@ export const recordReview = mutation({
  */
 export const reorder = mutation({
   args: {
-    generationId: v.id("generations"),
-    orderedIds: v.array(v.id("flashcardItems")),
+    generationId: v.id('generations'),
+    orderedIds: v.array(v.id('flashcardItems')),
   },
   handler: async (ctx, args) => {
     for (let i = 0; i < args.orderedIds.length; i++) {
@@ -298,12 +304,12 @@ export const reorder = mutation({
  */
 export const remove = mutation({
   args: {
-    id: v.id("flashcardItems"),
+    id: v.id('flashcardItems'),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db.get(args.id);
     if (!existing) {
-      throw new Error("Flashcard item not found");
+      throw new Error('Flashcard item not found');
     }
 
     await ctx.db.delete(args.id);

@@ -7,7 +7,8 @@
 
 ## OVERVIEW
 
-SvelteKit frontend for Alpha study app. Handles routing, authentication, and UI composition using @alpha/ui components.
+SvelteKit frontend for Alpha study app. Handles routing, authentication, and UI
+composition using @alpha/ui components.
 
 ---
 
@@ -60,7 +61,8 @@ src/
 
 ### Imports
 
-- `@alpha/ui` for components (`import { Button } from '@alpha/ui/shadcn/button'`)
+- `@alpha/ui` for components
+  (`import { Button } from '@alpha/ui/shadcn/button'`)
 - `@alpha/backend` for Convex API
 - `$lib` for internal utilities
 

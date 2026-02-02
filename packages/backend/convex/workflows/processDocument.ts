@@ -1,12 +1,13 @@
-import { v } from "convex/values";
-import { action, mutation, query } from "../_generated/server";
-import { api } from "../_generated/api";
+import { v } from 'convex/values';
 
-const DOCLING_URL = process.env.DOCLING_URL || "http://localhost:8000";
+import { api } from '../_generated/api';
+import { action, mutation, query } from '../_generated/server';
+
+const DOCLING_URL = process.env.DOCLING_URL || 'http://localhost:8000';
 
 export const getDocumentForProcessing = query({
   args: {
-    documentId: v.id("documents"),
+    documentId: v.id('documents'),
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.documentId);
@@ -15,12 +16,12 @@ export const getDocumentForProcessing = query({
 
 export const updateDocumentStatus = mutation({
   args: {
-    documentId: v.id("documents"),
+    documentId: v.id('documents'),
     status: v.union(
-      v.literal("pending"),
-      v.literal("processing"),
-      v.literal("ready"),
-      v.literal("failed"),
+      v.literal('pending'),
+      v.literal('processing'),
+      v.literal('ready'),
+      v.literal('failed'),
     ),
     extractedText: v.optional(v.string()),
     error: v.optional(v.string()),
@@ -33,7 +34,7 @@ export const updateDocumentStatus = mutation({
 
 export const processDocument = action({
   args: {
-    documentId: v.id("documents"),
+    documentId: v.id('documents'),
   },
   handler: async (ctx, args) => {
     const updateStatus = api.workflows.processDocument.updateDocumentStatus;
@@ -41,7 +42,7 @@ export const processDocument = action({
 
     await ctx.runMutation(updateStatus, {
       documentId: args.documentId,
-      status: "processing" as const,
+      status: 'processing' as const,
     });
 
     try {
@@ -50,12 +51,12 @@ export const processDocument = action({
       });
 
       if (!document) {
-        throw new Error("Document not found");
+        throw new Error('Document not found');
       }
 
       const fileUrl = await ctx.storage.getUrl(document.storageId);
       if (!fileUrl) {
-        throw new Error("Could not get file URL");
+        throw new Error('Could not get file URL');
       }
 
       const fileResponse = await fetch(fileUrl);
@@ -65,10 +66,10 @@ export const processDocument = action({
 
       const fileBlob = await fileResponse.blob();
       const formData = new FormData();
-      formData.append("file", fileBlob, document.name);
+      formData.append('file', fileBlob, document.name);
 
       const response = await fetch(`${DOCLING_URL}/extract`, {
-        method: "POST",
+        method: 'POST',
         body: formData,
       });
 
@@ -81,17 +82,18 @@ export const processDocument = action({
 
       await ctx.runMutation(updateStatus, {
         documentId: args.documentId,
-        status: "ready" as const,
+        status: 'ready' as const,
         extractedText: result.text,
       });
 
       return { success: true, documentId: args.documentId };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
 
       await ctx.runMutation(updateStatus, {
         documentId: args.documentId,
-        status: "failed" as const,
+        status: 'failed' as const,
         error: errorMessage,
       });
 
@@ -102,7 +104,7 @@ export const processDocument = action({
 
 export const retryProcessing = action({
   args: {
-    documentId: v.id("documents"),
+    documentId: v.id('documents'),
   },
   handler: async (
     ctx,
@@ -115,11 +117,11 @@ export const retryProcessing = action({
     });
 
     if (!document) {
-      throw new Error("Document not found");
+      throw new Error('Document not found');
     }
 
-    if (document.status !== "failed") {
-      throw new Error("Can only retry failed documents");
+    if (document.status !== 'failed') {
+      throw new Error('Can only retry failed documents');
     }
 
     return await ctx.runAction(api.workflows.processDocument.processDocument, {

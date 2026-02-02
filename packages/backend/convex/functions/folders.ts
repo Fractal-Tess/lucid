@@ -1,14 +1,15 @@
-import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
+import { v } from 'convex/values';
+
+import { mutation, query } from '../_generated/server';
 
 export const listBySubject = query({
   args: {
-    subjectId: v.id("subjects"),
+    subjectId: v.id('subjects'),
   },
   handler: async (ctx, args) => {
     const folders = await ctx.db
-      .query("folders")
-      .withIndex("by_subject", (q) => q.eq("subjectId", args.subjectId))
+      .query('folders')
+      .withIndex('by_subject', (q) => q.eq('subjectId', args.subjectId))
       .collect();
 
     return folders.sort((a, b) => a.order - b.order);
@@ -17,12 +18,12 @@ export const listBySubject = query({
 
 export const listByParent = query({
   args: {
-    parentId: v.optional(v.id("folders")),
+    parentId: v.optional(v.id('folders')),
   },
   handler: async (ctx, args) => {
     const folders = await ctx.db
-      .query("folders")
-      .withIndex("by_parent", (q) => q.eq("parentId", args.parentId))
+      .query('folders')
+      .withIndex('by_parent', (q) => q.eq('parentId', args.parentId))
       .collect();
 
     return folders.sort((a, b) => a.order - b.order);
@@ -31,12 +32,12 @@ export const listByParent = query({
 
 export const listRootFolders = query({
   args: {
-    subjectId: v.id("subjects"),
+    subjectId: v.id('subjects'),
   },
   handler: async (ctx, args) => {
     const allFolders = await ctx.db
-      .query("folders")
-      .withIndex("by_subject", (q) => q.eq("subjectId", args.subjectId))
+      .query('folders')
+      .withIndex('by_subject', (q) => q.eq('subjectId', args.subjectId))
       .collect();
 
     const rootFolders = allFolders.filter((f) => f.parentId === undefined);
@@ -46,7 +47,7 @@ export const listRootFolders = query({
 
 export const get = query({
   args: {
-    id: v.id("folders"),
+    id: v.id('folders'),
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
@@ -55,7 +56,7 @@ export const get = query({
 
 export const getWithPath = query({
   args: {
-    id: v.id("folders"),
+    id: v.id('folders'),
   },
   handler: async (ctx, args) => {
     const folder = await ctx.db.get(args.id);
@@ -84,21 +85,26 @@ export const getWithPath = query({
 
 export const create = mutation({
   args: {
-    userId: v.id("users"),
-    subjectId: v.id("subjects"),
-    parentId: v.optional(v.id("folders")),
+    userId: v.id('users'),
+    subjectId: v.id('subjects'),
+    parentId: v.optional(v.id('folders')),
     name: v.string(),
   },
   handler: async (ctx, args) => {
     const siblingFolders = await ctx.db
-      .query("folders")
-      .withIndex("by_parent", (q) => q.eq("parentId", args.parentId))
+      .query('folders')
+      .withIndex('by_parent', (q) => q.eq('parentId', args.parentId))
       .collect();
 
-    const sameSubjectSiblings = siblingFolders.filter((f) => f.subjectId === args.subjectId);
-    const maxOrder = sameSubjectSiblings.reduce((max, f) => Math.max(max, f.order), -1);
+    const sameSubjectSiblings = siblingFolders.filter(
+      (f) => f.subjectId === args.subjectId,
+    );
+    const maxOrder = sameSubjectSiblings.reduce(
+      (max, f) => Math.max(max, f.order),
+      -1,
+    );
 
-    const id = await ctx.db.insert("folders", {
+    const id = await ctx.db.insert('folders', {
       userId: args.userId,
       subjectId: args.subjectId,
       parentId: args.parentId,
@@ -113,7 +119,7 @@ export const create = mutation({
 
 export const update = mutation({
   args: {
-    id: v.id("folders"),
+    id: v.id('folders'),
     name: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -121,7 +127,7 @@ export const update = mutation({
 
     const existing = await ctx.db.get(id);
     if (!existing) {
-      throw new Error("Folder not found");
+      throw new Error('Folder not found');
     }
 
     const filteredUpdates: Record<string, unknown> = {};
@@ -134,23 +140,23 @@ export const update = mutation({
 
 export const remove = mutation({
   args: {
-    id: v.id("folders"),
+    id: v.id('folders'),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db.get(args.id);
     if (!existing) {
-      throw new Error("Folder not found");
+      throw new Error('Folder not found');
     }
 
     const childFolders = await ctx.db
-      .query("folders")
-      .withIndex("by_parent", (q) => q.eq("parentId", args.id))
+      .query('folders')
+      .withIndex('by_parent', (q) => q.eq('parentId', args.id))
       .collect();
 
     for (const child of childFolders) {
       const documents = await ctx.db
-        .query("documents")
-        .withIndex("by_folder", (q) => q.eq("folderId", child._id))
+        .query('documents')
+        .withIndex('by_folder', (q) => q.eq('folderId', child._id))
         .collect();
 
       for (const doc of documents) {
@@ -161,8 +167,8 @@ export const remove = mutation({
     }
 
     const documents = await ctx.db
-      .query("documents")
-      .withIndex("by_folder", (q) => q.eq("folderId", args.id))
+      .query('documents')
+      .withIndex('by_folder', (q) => q.eq('folderId', args.id))
       .collect();
 
     for (const doc of documents) {
@@ -176,9 +182,9 @@ export const remove = mutation({
 
 export const reorder = mutation({
   args: {
-    userId: v.id("users"),
-    parentId: v.optional(v.id("folders")),
-    orderedIds: v.array(v.id("folders")),
+    userId: v.id('users'),
+    parentId: v.optional(v.id('folders')),
+    orderedIds: v.array(v.id('folders')),
   },
   handler: async (ctx, args) => {
     for (let i = 0; i < args.orderedIds.length; i++) {
@@ -202,24 +208,24 @@ export const reorder = mutation({
 
 export const move = mutation({
   args: {
-    id: v.id("folders"),
-    newParentId: v.optional(v.id("folders")),
+    id: v.id('folders'),
+    newParentId: v.optional(v.id('folders')),
   },
   handler: async (ctx, args) => {
     const folder = await ctx.db.get(args.id);
     if (!folder) {
-      throw new Error("Folder not found");
+      throw new Error('Folder not found');
     }
 
     if (args.newParentId === args.id) {
-      throw new Error("Cannot move folder into itself");
+      throw new Error('Cannot move folder into itself');
     }
 
     if (args.newParentId) {
       let checkId = args.newParentId as typeof args.newParentId | undefined;
       while (checkId) {
         if (checkId === args.id) {
-          throw new Error("Cannot move folder into its own descendant");
+          throw new Error('Cannot move folder into its own descendant');
         }
         const parentFolder = await ctx.db.get(checkId);
         if (!parentFolder) break;
@@ -228,12 +234,17 @@ export const move = mutation({
     }
 
     const targetSiblings = await ctx.db
-      .query("folders")
-      .withIndex("by_parent", (q) => q.eq("parentId", args.newParentId))
+      .query('folders')
+      .withIndex('by_parent', (q) => q.eq('parentId', args.newParentId))
       .collect();
 
-    const sameSubjectSiblings = targetSiblings.filter((f) => f.subjectId === folder.subjectId);
-    const maxOrder = sameSubjectSiblings.reduce((max, f) => Math.max(max, f.order), -1);
+    const sameSubjectSiblings = targetSiblings.filter(
+      (f) => f.subjectId === folder.subjectId,
+    );
+    const maxOrder = sameSubjectSiblings.reduce(
+      (max, f) => Math.max(max, f.order),
+      -1,
+    );
 
     await ctx.db.patch(args.id, {
       parentId: args.newParentId,

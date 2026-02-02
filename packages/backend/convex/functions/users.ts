@@ -1,6 +1,7 @@
-import { v } from "convex/values";
-import { query } from "../_generated/server";
-import { authComponent } from "../auth";
+import { v } from 'convex/values';
+
+import { query } from '../_generated/server';
+import { authComponent } from '../auth';
 
 /**
  * Get the current user from our users table (not Better Auth's user table)
@@ -21,8 +22,8 @@ export const getCurrentUser = query({
 
     // Look up our user by the Better Auth ID
     const user = await ctx.db
-      .query("users")
-      .withIndex("by_better_auth_id", (q) => q.eq("betterAuthId", authUser._id))
+      .query('users')
+      .withIndex('by_better_auth_id', (q) => q.eq('betterAuthId', authUser._id))
       .first();
 
     return user;
@@ -34,7 +35,7 @@ export const getCurrentUser = query({
  */
 export const getById = query({
   args: {
-    id: v.id("users"),
+    id: v.id('users'),
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);

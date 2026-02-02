@@ -22,7 +22,7 @@
 				<Breadcrumb.Root>
 					<Breadcrumb.List>
 						<Breadcrumb.Item class="hidden md:block">
-							<Breadcrumb.Link href="/dashboard">Lucid</Breadcrumb.Link>
+							<Breadcrumb.Link href="/dashboard">Alpha</Breadcrumb.Link>
 						</Breadcrumb.Item>
 					</Breadcrumb.List>
 				</Breadcrumb.Root>

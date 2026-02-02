@@ -1,4 +1,4 @@
-import NotesViewer from "./notes-viewer.svelte";
+import NotesViewer from './notes-viewer.svelte';
 
 export { NotesViewer };
-export * from "./types";
+export * from './types';

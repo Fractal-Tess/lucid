@@ -1,8 +1,9 @@
-import { v } from "convex/values";
-import { action, mutation } from "../_generated/server";
-import { api } from "../_generated/api";
+import { v } from 'convex/values';
 
-const DOCLING_URL = process.env.DOCLING_URL || "http://localhost:8000";
+import { api } from '../_generated/api';
+import { action, mutation } from '../_generated/server';
+
+const DOCLING_URL = process.env.DOCLING_URL || 'http://localhost:8000';
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 /**
@@ -10,18 +11,18 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
  */
 async function generateEmbedding(text: string): Promise<number[]> {
   if (!OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY not configured");
+    throw new Error('OPENAI_API_KEY not configured');
   }
 
-  const response = await fetch("https://api.openai.com/v1/embeddings", {
-    method: "POST",
+  const response = await fetch('https://api.openai.com/v1/embeddings', {
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
       input: text,
-      model: "text-embedding-3-small",
+      model: 'text-embedding-3-small',
       dimensions: 1536,
     }),
   });
@@ -43,8 +44,8 @@ async function generateEmbedding(text: string): Promise<number[]> {
  */
 export const createChunk = mutation({
   args: {
-    documentId: v.id("documents"),
-    userId: v.id("users"),
+    documentId: v.id('documents'),
+    userId: v.id('users'),
     content: v.string(),
     embedding: v.array(v.number()),
     chunkIndex: v.number(),
@@ -56,7 +57,7 @@ export const createChunk = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("documentChunks", {
+    return await ctx.db.insert('documentChunks', {
       ...args,
       createdAt: Date.now(),
     });
@@ -68,12 +69,12 @@ export const createChunk = mutation({
  */
 export const deleteChunksForDocument = mutation({
   args: {
-    documentId: v.id("documents"),
+    documentId: v.id('documents'),
   },
   handler: async (ctx, args) => {
     const chunks = await ctx.db
-      .query("documentChunks")
-      .withIndex("by_document", (q) => q.eq("documentId", args.documentId))
+      .query('documentChunks')
+      .withIndex('by_document', (q) => q.eq('documentId', args.documentId))
       .collect();
 
     for (const chunk of chunks) {
@@ -89,12 +90,13 @@ export const deleteChunksForDocument = mutation({
  */
 export const processDocumentEmbeddings = action({
   args: {
-    documentId: v.id("documents"),
+    documentId: v.id('documents'),
   },
   handler: async (ctx, args) => {
     const getDoc = api.workflows.processDocument.getDocumentForProcessing;
     const createChunkMutation = api.workflows.generateEmbeddings.createChunk;
-    const deleteChunksMutation = api.workflows.generateEmbeddings.deleteChunksForDocument;
+    const deleteChunksMutation =
+      api.workflows.generateEmbeddings.deleteChunksForDocument;
 
     try {
       // Get the document
@@ -103,11 +105,11 @@ export const processDocumentEmbeddings = action({
       });
 
       if (!document) {
-        throw new Error("Document not found");
+        throw new Error('Document not found');
       }
 
       if (!document.extractedText) {
-        throw new Error("Document has no extracted text");
+        throw new Error('Document has no extracted text');
       }
 
       // Delete existing chunks for this document (in case of re-processing)
@@ -118,7 +120,7 @@ export const processDocumentEmbeddings = action({
       // Get file URL and fetch the file
       const fileUrl = await ctx.storage.getUrl(document.storageId);
       if (!fileUrl) {
-        throw new Error("Could not get file URL");
+        throw new Error('Could not get file URL');
       }
 
       const fileResponse = await fetch(fileUrl);
@@ -128,11 +130,11 @@ export const processDocumentEmbeddings = action({
 
       const fileBlob = await fileResponse.blob();
       const formData = new FormData();
-      formData.append("file", fileBlob, document.name);
+      formData.append('file', fileBlob, document.name);
 
       // Call Docling chunking endpoint
       const chunkResponse = await fetch(`${DOCLING_URL}/chunk`, {
-        method: "POST",
+        method: 'POST',
         body: formData,
       });
 
@@ -186,7 +188,8 @@ export const processDocumentEmbeddings = action({
         totalChars: chunkResult.total_chars,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
 
       return {
         success: false,

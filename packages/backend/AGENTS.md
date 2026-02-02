@@ -7,7 +7,8 @@
 
 ## OVERVIEW
 
-Convex backend with serverless functions, real-time sync, and AI workflows. Handles database, auth, and document processing orchestration.
+Convex backend with serverless functions, real-time sync, and AI workflows.
+Handles database, auth, and document processing orchestration.
 
 ---
 
@@ -87,5 +88,6 @@ bun run dev:setup    # Configure Convex project
 
 - Generated types in `_generated/` (ignored by oxlint)
 - Vector search on `documentChunks` table (1536-dim embeddings)
-- SM-2 algorithm fields in `flashcardItems` (easeFactor, interval, repetitions, nextReview)
+- SM-2 algorithm fields in `flashcardItems` (easeFactor, interval, repetitions,
+  nextReview)
 - Document processing: Convex → Docling service → Workflows

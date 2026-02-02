@@ -122,7 +122,7 @@
 								<Logo variant="light" class="size-8" />
 							</div>
 							<div class="grid flex-1 text-start text-sm leading-tight">
-								<span class="truncate font-medium">Lucid</span>
+								<span class="truncate font-medium">Alpha</span>
 								<span class="truncate text-xs">Study App</span>
 							</div>
 						</a>

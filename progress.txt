@@ -1,22 +1,5 @@
 # Progress Log
 
-## 2026-02-01 - Home Page Redesign
-
-**Commit:** f2a7c44
-
-### Completed
-- Redesigned `apps/web/src/routes/+page.svelte` with "Digital Zen" aesthetic
-- Implemented `DarkVeil` background with custom configuration
-- Added responsive Bento Grid layout for features
-- Integrated `Motion*` components for entrance animations
-- Added `lucide-svelte` icons
-- Fixed header with Logo and Login/Signup buttons
-
-### Technical Notes
-- Used Svelte 5 runes
-- Tailwind CSS for styling and glassmorphism
-- Verified type safety with `bun run check`
-
 ## 2026-02-01 - Sign-in Page Implementation
 
 **Commit:** (to be added after commit)

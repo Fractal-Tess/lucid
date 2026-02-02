@@ -1,21 +1,22 @@
-import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
+import { v } from 'convex/values';
+
+import { mutation, query } from '../_generated/server';
 
 /**
  * Get daily stats for a user
  */
 export const getByUser = query({
   args: {
-    userId: v.id("users"),
+    userId: v.id('users'),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const limit = args.limit ?? 30;
 
     const stats = await ctx.db
-      .query("dailyStats")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
-      .order("desc")
+      .query('dailyStats')
+      .withIndex('by_user', (q) => q.eq('userId', args.userId))
+      .order('desc')
       .take(limit);
 
     return stats;
@@ -27,14 +28,16 @@ export const getByUser = query({
  */
 export const getToday = query({
   args: {
-    userId: v.id("users"),
+    userId: v.id('users'),
   },
   handler: async (ctx, args) => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split('T')[0];
 
     const stats = await ctx.db
-      .query("dailyStats")
-      .withIndex("by_user_date", (q) => q.eq("userId", args.userId).eq("date", today))
+      .query('dailyStats')
+      .withIndex('by_user_date', (q) =>
+        q.eq('userId', args.userId).eq('date', today),
+      )
       .first();
 
     return stats;
@@ -46,13 +49,15 @@ export const getToday = query({
  */
 export const getByDate = query({
   args: {
-    userId: v.id("users"),
+    userId: v.id('users'),
     date: v.string(), // YYYY-MM-DD format
   },
   handler: async (ctx, args) => {
     const stats = await ctx.db
-      .query("dailyStats")
-      .withIndex("by_user_date", (q) => q.eq("userId", args.userId).eq("date", args.date))
+      .query('dailyStats')
+      .withIndex('by_user_date', (q) =>
+        q.eq('userId', args.userId).eq('date', args.date),
+      )
       .first();
 
     return stats;
@@ -64,17 +69,19 @@ export const getByDate = query({
  */
 export const recordQuiz = mutation({
   args: {
-    userId: v.id("users"),
+    userId: v.id('users'),
     correctAnswers: v.number(),
     studyTimeSeconds: v.number(),
   },
   handler: async (ctx, args) => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split('T')[0];
 
     // Get or create today's stats
     const existing = await ctx.db
-      .query("dailyStats")
-      .withIndex("by_user_date", (q) => q.eq("userId", args.userId).eq("date", today))
+      .query('dailyStats')
+      .withIndex('by_user_date', (q) =>
+        q.eq('userId', args.userId).eq('date', today),
+      )
       .first();
 
     if (existing) {
@@ -85,7 +92,7 @@ export const recordQuiz = mutation({
       });
       return existing._id;
     } else {
-      const id = await ctx.db.insert("dailyStats", {
+      const id = await ctx.db.insert('dailyStats', {
         userId: args.userId,
         date: today,
         cardsStudied: 0,
@@ -103,18 +110,20 @@ export const recordQuiz = mutation({
  */
 export const recordFlashcards = mutation({
   args: {
-    userId: v.id("users"),
+    userId: v.id('users'),
     cardsStudied: v.number(),
     correctAnswers: v.number(),
     studyTimeSeconds: v.number(),
   },
   handler: async (ctx, args) => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split('T')[0];
 
     // Get or create today's stats
     const existing = await ctx.db
-      .query("dailyStats")
-      .withIndex("by_user_date", (q) => q.eq("userId", args.userId).eq("date", today))
+      .query('dailyStats')
+      .withIndex('by_user_date', (q) =>
+        q.eq('userId', args.userId).eq('date', today),
+      )
       .first();
 
     if (existing) {
@@ -125,7 +134,7 @@ export const recordFlashcards = mutation({
       });
       return existing._id;
     } else {
-      const id = await ctx.db.insert("dailyStats", {
+      const id = await ctx.db.insert('dailyStats', {
         userId: args.userId,
         date: today,
         cardsStudied: args.cardsStudied,
@@ -143,22 +152,36 @@ export const recordFlashcards = mutation({
  */
 export const getSummary = query({
   args: {
-    userId: v.id("users"),
+    userId: v.id('users'),
     startDate: v.string(), // YYYY-MM-DD format
     endDate: v.string(), // YYYY-MM-DD format
   },
   handler: async (ctx, args) => {
     const stats = await ctx.db
-      .query("dailyStats")
-      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .query('dailyStats')
+      .withIndex('by_user', (q) => q.eq('userId', args.userId))
       .collect();
 
-    const filtered = stats.filter((s) => s.date >= args.startDate && s.date <= args.endDate);
+    const filtered = stats.filter(
+      (s) => s.date >= args.startDate && s.date <= args.endDate,
+    );
 
-    const totalCardsStudied = filtered.reduce((sum, s) => sum + s.cardsStudied, 0);
-    const totalQuizzesTaken = filtered.reduce((sum, s) => sum + s.quizzesTaken, 0);
-    const totalCorrectAnswers = filtered.reduce((sum, s) => sum + s.correctAnswers, 0);
-    const totalStudyTime = filtered.reduce((sum, s) => sum + s.studyTimeSeconds, 0);
+    const totalCardsStudied = filtered.reduce(
+      (sum, s) => sum + s.cardsStudied,
+      0,
+    );
+    const totalQuizzesTaken = filtered.reduce(
+      (sum, s) => sum + s.quizzesTaken,
+      0,
+    );
+    const totalCorrectAnswers = filtered.reduce(
+      (sum, s) => sum + s.correctAnswers,
+      0,
+    );
+    const totalStudyTime = filtered.reduce(
+      (sum, s) => sum + s.studyTimeSeconds,
+      0,
+    );
 
     return {
       totalCardsStudied,

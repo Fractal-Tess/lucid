@@ -1,4 +1,9 @@
-export type FileNodeType = "group" | "subject" | "folder" | "document" | "generation";
+export type FileNodeType =
+  | 'group'
+  | 'subject'
+  | 'folder'
+  | 'document'
+  | 'generation';
 
 export interface FileNode {
   id: string;
@@ -16,5 +21,9 @@ export type FileTreeData = FileNode[];
 export interface FileTreeEvents {
   onSelect: (node: FileNode) => void;
   onToggle: (node: FileNode, expanded: boolean) => void;
-  onReorder: (nodeId: string, targetId: string, position: "before" | "after" | "inside") => void;
+  onReorder: (
+    nodeId: string,
+    targetId: string,
+    position: 'before' | 'after' | 'inside',
+  ) => void;
 }

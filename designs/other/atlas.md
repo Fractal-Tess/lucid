@@ -154,7 +154,8 @@ Dark-themed study app dashboard with a clean, modern interface.
 
 ## Typography
 
-- **Font Family**: System sans-serif (-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto)
+- **Font Family**: System sans-serif (-apple-system, BlinkMacSystemFont, 'Segoe
+  UI', Roboto)
 - **Section Headers**: 16px, font-weight 600
 - **Card Titles**: 14px, font-weight 600
 - **Card Descriptions**: 13px, font-weight 400, muted color
@@ -165,7 +166,8 @@ Dark-themed study app dashboard with a clean, modern interface.
 ## Spacing & Layout
 
 - **Sidebar icons**: 40x40px with 8px gap
-- **Sidebar icon backgrounds**: Rounded rectangles with colored backgrounds (not just icons)
+- **Sidebar icon backgrounds**: Rounded rectangles with colored backgrounds (not
+  just icons)
 - **Sidebar dividers**: 1px horizontal lines, 24px width
 - **Card padding**: 20px
 - **Card border-radius**: 12px

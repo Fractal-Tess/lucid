@@ -1,21 +1,26 @@
-import { v } from "convex/values";
-import { action, internalMutation, internalQuery } from "../_generated/server";
-import { api, internal } from "../_generated/api";
-import type { Id } from "../_generated/dataModel";
-import { notesResponseSchema, createNotesPrompt } from "@alpha/ai/prompts/notes";
+import type { Id } from '../_generated/dataModel';
+
+import {
+  notesResponseSchema,
+  createNotesPrompt,
+} from '@alpha/ai/prompts/notes';
+import { v } from 'convex/values';
+
+import { api, internal } from '../_generated/api';
+import { action, internalMutation, internalQuery } from '../_generated/server';
 
 interface DocumentForGeneration {
-  _id: Id<"documents">;
+  _id: Id<'documents'>;
   name: string;
   extractedText?: string;
 }
 
-const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_MODEL = "deepseek/deepseek-chat";
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const DEFAULT_MODEL = 'deepseek/deepseek-chat';
 
 export const getDocumentsForGeneration = internalQuery({
   args: {
-    documentIds: v.array(v.id("documents")),
+    documentIds: v.array(v.id('documents')),
   },
   handler: async (ctx, args): Promise<DocumentForGeneration[]> => {
     const documents: DocumentForGeneration[] = [];
@@ -35,8 +40,12 @@ export const getDocumentsForGeneration = internalQuery({
 
 export const updateGenerationStatus = internalMutation({
   args: {
-    generationId: v.id("generations"),
-    status: v.union(v.literal("generating"), v.literal("ready"), v.literal("failed")),
+    generationId: v.id('generations'),
+    status: v.union(
+      v.literal('generating'),
+      v.literal('ready'),
+      v.literal('failed'),
+    ),
     error: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -50,14 +59,14 @@ export const updateGenerationStatus = internalMutation({
 
 export const createNotesContent = internalMutation({
   args: {
-    generationId: v.id("generations"),
-    userId: v.id("users"),
+    generationId: v.id('generations'),
+    userId: v.id('users'),
     content: v.string(),
     keyPoints: v.array(v.string()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
-    const id = await ctx.db.insert("notesContent", {
+    const id = await ctx.db.insert('notesContent', {
       generationId: args.generationId,
       userId: args.userId,
       content: args.content,
@@ -77,16 +86,16 @@ async function callOpenRouter(
   const prompts = createNotesPrompt(documentText);
 
   const response = await fetch(OPENROUTER_API_URL, {
-    method: "POST",
+    method: 'POST',
     headers: {
       Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       model: DEFAULT_MODEL,
       messages: [
-        { role: "system", content: prompts.system },
-        { role: "user", content: prompts.user },
+        { role: 'system', content: prompts.system },
+        { role: 'user', content: prompts.user },
       ],
       max_tokens: options?.maxTokens ?? 4096,
       temperature: options?.temperature ?? 0.5,
@@ -104,25 +113,27 @@ async function callOpenRouter(
 
   const content = data.choices[0]?.message?.content;
   if (!content) {
-    throw new Error("No content in OpenRouter response");
+    throw new Error('No content in OpenRouter response');
   }
 
   let parsed: unknown;
   try {
     let jsonString = content.trim();
-    if (jsonString.startsWith("```json")) {
+    if (jsonString.startsWith('```json')) {
       jsonString = jsonString.slice(7);
-    } else if (jsonString.startsWith("```")) {
+    } else if (jsonString.startsWith('```')) {
       jsonString = jsonString.slice(3);
     }
-    if (jsonString.endsWith("```")) {
+    if (jsonString.endsWith('```')) {
       jsonString = jsonString.slice(0, -3);
     }
     jsonString = jsonString.trim();
 
     parsed = JSON.parse(jsonString);
   } catch {
-    throw new Error(`Failed to parse AI response as JSON: ${content.slice(0, 200)}...`);
+    throw new Error(
+      `Failed to parse AI response as JSON: ${content.slice(0, 200)}...`,
+    );
   }
 
   const validated = notesResponseSchema.safeParse(parsed);
@@ -135,12 +146,13 @@ async function callOpenRouter(
 
 export const generateNotes = action({
   args: {
-    generationId: v.id("generations"),
-    userId: v.id("users"),
-    documentIds: v.array(v.id("documents")),
+    generationId: v.id('generations'),
+    userId: v.id('users'),
+    documentIds: v.array(v.id('documents')),
   },
   handler: async (ctx, args) => {
-    const updateStatus = internal.workflows.generateNotes.updateGenerationStatus;
+    const updateStatus =
+      internal.workflows.generateNotes.updateGenerationStatus;
     const getDocs = internal.workflows.generateNotes.getDocumentsForGeneration;
     const createContent = internal.workflows.generateNotes.createNotesContent;
 
@@ -150,7 +162,7 @@ export const generateNotes = action({
       });
 
       if (documents.length === 0) {
-        throw new Error("No documents found");
+        throw new Error('No documents found');
       }
 
       const combinedText = documents
@@ -160,11 +172,11 @@ export const generateNotes = action({
           }
           return `=== ${doc.name} ===\n${doc.extractedText}`;
         })
-        .join("\n\n");
+        .join('\n\n');
 
       const apiKey = process.env.OPENROUTER_API_KEY;
       if (!apiKey) {
-        throw new Error("OPENROUTER_API_KEY is not configured");
+        throw new Error('OPENROUTER_API_KEY is not configured');
       }
 
       const notes = await callOpenRouter(apiKey, combinedText);
@@ -178,7 +190,7 @@ export const generateNotes = action({
 
       await ctx.runMutation(updateStatus, {
         generationId: args.generationId,
-        status: "ready" as const,
+        status: 'ready' as const,
       });
 
       return {
@@ -186,11 +198,12 @@ export const generateNotes = action({
         generationId: args.generationId,
       };
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
 
       await ctx.runMutation(updateStatus, {
         generationId: args.generationId,
-        status: "failed" as const,
+        status: 'failed' as const,
         error: errorMessage,
       });
 
@@ -204,7 +217,7 @@ export const generateNotes = action({
 
 export const getGenerationForRetry = internalQuery({
   args: {
-    generationId: v.id("generations"),
+    generationId: v.id('generations'),
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.generationId);
@@ -213,7 +226,7 @@ export const getGenerationForRetry = internalQuery({
 
 export const retryGeneration = action({
   args: {
-    generationId: v.id("generations"),
+    generationId: v.id('generations'),
   },
   handler: async (
     ctx,
@@ -223,26 +236,32 @@ export const retryGeneration = action({
     generationId?: string;
     error?: string;
   }> => {
-    const generation = await ctx.runQuery(internal.workflows.generateNotes.getGenerationForRetry, {
-      generationId: args.generationId,
-    });
+    const generation = await ctx.runQuery(
+      internal.workflows.generateNotes.getGenerationForRetry,
+      {
+        generationId: args.generationId,
+      },
+    );
 
     if (!generation) {
-      throw new Error("Generation not found");
+      throw new Error('Generation not found');
     }
 
-    if (generation.status !== "failed") {
-      throw new Error("Can only retry failed generations");
+    if (generation.status !== 'failed') {
+      throw new Error('Can only retry failed generations');
     }
 
-    if (generation.type !== "notes") {
-      throw new Error("This action only handles notes generations");
+    if (generation.type !== 'notes') {
+      throw new Error('This action only handles notes generations');
     }
 
-    await ctx.runMutation(internal.workflows.generateNotes.updateGenerationStatus, {
-      generationId: args.generationId,
-      status: "generating" as const,
-    });
+    await ctx.runMutation(
+      internal.workflows.generateNotes.updateGenerationStatus,
+      {
+        generationId: args.generationId,
+        status: 'generating' as const,
+      },
+    );
 
     return await ctx.runAction(api.workflows.generateNotes.generateNotes, {
       generationId: args.generationId,

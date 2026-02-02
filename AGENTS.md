@@ -8,7 +8,9 @@
 
 ## OVERVIEW
 
-AI-powered study platform with document processing, flashcards, quizzes, and summaries. Phase 1 MVP complete with SM-2 spaced repetition, LLM-generated content via OpenRouter, and vector search.
+AI-powered study platform with document processing, flashcards, quizzes, and
+summaries. Phase 1 MVP complete with SM-2 spaced repetition, LLM-generated
+content via OpenRouter, and vector search.
 
 ---
 
@@ -63,7 +65,8 @@ AI-powered study platform with document processing, flashcards, quizzes, and sum
 
 ### Components
 
-- shadcn-svelte pattern: `component/` folder with `component.svelte` + `index.js`
+- shadcn-svelte pattern: `component/` folder with `component.svelte` +
+  `index.js`
 - Custom components alongside shadcn in `packages/ui/src/lib/components/ui/`
 
 ### Backend
@@ -106,7 +109,8 @@ This is non-negotiable. The project uses strict TypeScript settings:
 - `noUnusedLocals`
 - `noUnusedParameters`
 
-**Never** suppress type errors with `as any`, `@ts-ignore`, or `@ts-expect-error`.
+**Never** suppress type errors with `as any`, `@ts-ignore`, or
+`@ts-expect-error`.
 
 ---
 
@@ -158,7 +162,9 @@ bun run shadcn add <component>   # Add shadcn component
 3. Read relevant AGENTS.md sections for the area you're working in
 ```
 
-**Why**: Supermemory contains accumulated knowledge about patterns, gotchas, and technical debt. Checking it first prevents repeating mistakes and ensures you follow established conventions.
+**Why**: Supermemory contains accumulated knowledge about patterns, gotchas, and
+technical debt. Checking it first prevents repeating mistakes and ensures you
+follow established conventions.
 
 ### During Work - Keep Memory Updated
 

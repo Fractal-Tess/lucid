@@ -1,28 +1,32 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from '@playwright/test';
 
-test.describe("QuizViewer", () => {
+test.describe('QuizViewer', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/quiz-viewer");
+    await page.goto('/quiz-viewer');
     await page.waitForTimeout(500);
   });
 
-  test("displays quiz question", async ({ page }) => {
+  test('displays quiz question', async ({ page }) => {
     const question = page.locator("[data-testid='quiz-question']");
     await expect(question).toBeVisible();
-    await expect(question).toHaveText("What is the capital of France?");
+    await expect(question).toHaveText('What is the capital of France?');
   });
 
-  test("shows question counter indicating current position", async ({ page }) => {
+  test('shows question counter indicating current position', async ({
+    page,
+  }) => {
     const counter = page.locator("[data-testid='question-counter']");
     await expect(counter).toBeVisible();
-    await expect(counter).toHaveText("Question 1 / 3");
+    await expect(counter).toHaveText('Question 1 / 3');
 
     const nextButton = page.locator("[data-testid='next-button']");
     await nextButton.click();
-    await expect(counter).toHaveText("Question 2 / 3");
+    await expect(counter).toHaveText('Question 2 / 3');
   });
 
-  test("highlights correct answer when correct option selected", async ({ page }) => {
+  test('highlights correct answer when correct option selected', async ({
+    page,
+  }) => {
     const options = page.locator("[data-testid^='quiz-option']");
     const nextButton = page.locator("[data-testid='next-button']");
     const option = options.nth(1); // Paris
@@ -32,16 +36,16 @@ test.describe("QuizViewer", () => {
     await expect(option).toHaveClass(/text-white/);
   });
 
-  test("displays all answer options", async ({ page }) => {
+  test('displays all answer options', async ({ page }) => {
     const options = page.locator("[data-testid^='quiz-option']");
     await expect(options).toHaveCount(4);
-    await expect(options.nth(0)).toContainText("London");
-    await expect(options.nth(1)).toContainText("Paris");
-    await expect(options.nth(2)).toContainText("Berlin");
-    await expect(options.nth(3)).toContainText("Madrid");
+    await expect(options.nth(0)).toContainText('London');
+    await expect(options.nth(1)).toContainText('Paris');
+    await expect(options.nth(2)).toContainText('Berlin');
+    await expect(options.nth(3)).toContainText('Madrid');
   });
 
-  test("highlights correct answer and shows explanation when wrong option selected", async ({
+  test('highlights correct answer and shows explanation when wrong option selected', async ({
     page,
   }) => {
     const options = page.locator("[data-testid^='quiz-option']");
@@ -62,10 +66,10 @@ test.describe("QuizViewer", () => {
     // Explanation should be visible
     const explanation = page.locator("[data-testid='quiz-explanation']");
     await expect(explanation).toBeVisible();
-    await expect(explanation).toContainText("Paris is the capital");
+    await expect(explanation).toContainText('Paris is the capital');
   });
 
-  test("disables all options after answering", async ({ page }) => {
+  test('disables all options after answering', async ({ page }) => {
     const options = page.locator("[data-testid^='quiz-option']");
     const option = options.nth(1); // Paris
 
@@ -77,17 +81,17 @@ test.describe("QuizViewer", () => {
     }
   });
 
-  test("navigates to next question with button click", async ({ page }) => {
+  test('navigates to next question with button click', async ({ page }) => {
     const counter = page.locator("[data-testid='question-counter']");
     const nextButton = page.locator("[data-testid='next-button']");
     const options = page.locator("[data-testid^='quiz-option']");
 
-    await expect(counter).toHaveText("Question 1 / 3");
+    await expect(counter).toHaveText('Question 1 / 3');
     await nextButton.click();
-    await expect(counter).toHaveText("Question 2 / 3");
+    await expect(counter).toHaveText('Question 2 / 3');
   });
 
-  test("navigates to previous question with button click", async ({ page }) => {
+  test('navigates to previous question with button click', async ({ page }) => {
     const nextButton = page.locator("[data-testid='next-button']");
     const prevButton = page.locator("[data-testid='prev-button']");
     const counter = page.locator("[data-testid='question-counter']");
@@ -96,19 +100,19 @@ test.describe("QuizViewer", () => {
     // Navigate to second question
     await options.nth(0).click();
     await nextButton.click();
-    await expect(counter).toHaveText("Question 2 / 3");
+    await expect(counter).toHaveText('Question 2 / 3');
 
     // Go back to first question
     await prevButton.click();
-    await expect(counter).toHaveText("Question 1 / 3");
+    await expect(counter).toHaveText('Question 1 / 3');
   });
 
-  test("disables previous button on first question", async ({ page }) => {
+  test('disables previous button on first question', async ({ page }) => {
     const prevButton = page.locator("[data-testid='prev-button']");
     await expect(prevButton).toBeDisabled();
   });
 
-  test("shows finish button on last question", async ({ page }) => {
+  test('shows finish button on last question', async ({ page }) => {
     const nextButton = page.locator("[data-testid='next-button']");
     const counter = page.locator("[data-testid='question-counter']");
     const options = page.locator("[data-testid^='quiz-option']");
@@ -119,13 +123,13 @@ test.describe("QuizViewer", () => {
     await options.nth(1).click();
     await nextButton.click();
 
-    await expect(counter).toHaveText("Question 3 / 3");
+    await expect(counter).toHaveText('Question 3 / 3');
     // Finish button should be visible and enabled on last question
     await expect(nextButton).toBeVisible();
     await expect(nextButton).not.toBeDisabled();
   });
 
-  test("shows score after completing all questions", async ({ page }) => {
+  test('shows score after completing all questions', async ({ page }) => {
     const nextButton = page.locator("[data-testid='next-button']");
     const options = page.locator("[data-testid^='quiz-option']");
     const question = page.locator("[data-testid='quiz-question']");
@@ -146,10 +150,12 @@ test.describe("QuizViewer", () => {
     // Should show results
     const results = page.locator("[data-testid='quiz-results']");
     await expect(results).toBeVisible();
-    await expect(results).toContainText("Your Score: 3 / 3");
+    await expect(results).toContainText('Your Score: 3 / 3');
   });
 
-  test("shows correct score for mixed correct/incorrect answers", async ({ page }) => {
+  test('shows correct score for mixed correct/incorrect answers', async ({
+    page,
+  }) => {
     const nextButton = page.locator("[data-testid='next-button']");
     const options = page.locator("[data-testid^='quiz-option']");
     const question = page.locator("[data-testid='quiz-question']");
@@ -167,27 +173,29 @@ test.describe("QuizViewer", () => {
     await nextButton.click();
 
     const results = page.locator("[data-testid='quiz-results']");
-    await expect(results).toContainText("Your Score: 2 / 3");
+    await expect(results).toContainText('Your Score: 2 / 3');
   });
 
-  test("has proper ARIA attributes for accessibility", async ({ page }) => {
+  test('has proper ARIA attributes for accessibility', async ({ page }) => {
     const options = page.locator("[data-testid^='quiz-option']");
 
     // Options should be buttons
     for (let i = 0; i < (await options.count()); i++) {
-      await expect(options.nth(i)).toHaveAttribute("type", "button");
+      await expect(options.nth(i)).toHaveAttribute('type', 'button');
     }
   });
 
-  test("shows empty state when no questions provided", async ({ page }) => {
-    await page.goto("/quiz-viewer?empty=true");
+  test('shows empty state when no questions provided', async ({ page }) => {
+    await page.goto('/quiz-viewer?empty=true');
     await page.waitForTimeout(500);
 
     await expect(page.locator("[data-testid='empty-state']")).toBeVisible();
-    await expect(page.locator("[data-testid='empty-state']")).toContainText("No questions");
+    await expect(page.locator("[data-testid='empty-state']")).toContainText(
+      'No questions',
+    );
   });
 
-  test("restarts quiz on restart button click", async ({ page }) => {
+  test('restarts quiz on restart button click', async ({ page }) => {
     const nextButton = page.locator("[data-testid='next-button']");
     const restartButton = page.locator("[data-testid='restart-button']");
     const options = page.locator("[data-testid^='quiz-option']");
@@ -215,7 +223,7 @@ test.describe("QuizViewer", () => {
 
     // Should be back to first question
     const counter = page.locator("[data-testid='question-counter']");
-    await expect(counter).toHaveText("Question 1 / 3");
+    await expect(counter).toHaveText('Question 1 / 3');
     await expect(results).not.toBeVisible();
   });
 });

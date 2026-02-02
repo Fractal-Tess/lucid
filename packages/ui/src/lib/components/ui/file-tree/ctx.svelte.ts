@@ -1,7 +1,8 @@
-import { getContext, setContext } from "svelte";
-import type { FileNode, FileNodeType } from "./types.js";
+import type { FileNode, FileNodeType } from './types.js';
 
-const FILE_TREE_CTX = Symbol("FILE_TREE_CTX");
+import { getContext, setContext } from 'svelte';
+
+const FILE_TREE_CTX = Symbol('FILE_TREE_CTX');
 
 export interface FileTreeContextState {
   selectedId: string | null;
@@ -10,7 +11,11 @@ export interface FileTreeContextState {
   indentSize: number;
   onSelect: (node: FileNode) => void;
   onToggle: (node: FileNode) => void;
-  onReorder: (sourceId: string, targetId: string, position: "before" | "after" | "inside") => void;
+  onReorder: (
+    sourceId: string,
+    targetId: string,
+    position: 'before' | 'after' | 'inside',
+  ) => void;
 }
 
 export function setFileTreeContext(state: FileTreeContextState) {

@@ -1,6 +1,10 @@
 ---
 name: agent-browser
-description: Automates browser interactions for web testing, form filling, screenshots, and data extraction. Use when the user needs to navigate websites, interact with web pages, fill forms, take screenshots, test web applications, or extract information from web pages.
+description:
+  Automates browser interactions for web testing, form filling, screenshots, and
+  data extraction. Use when the user needs to navigate websites, interact with
+  web pages, fill forms, take screenshots, test web applications, or extract
+  information from web pages.
 allowed-tools: Bash(agent-browser:*)
 ---
 
@@ -19,7 +23,8 @@ agent-browser close             # Close browser
 ## Core workflow
 
 1. Navigate: `agent-browser open <url>`
-2. Snapshot: `agent-browser snapshot -i` (returns elements with refs like `@e1`, `@e2`)
+2. Snapshot: `agent-browser snapshot -i` (returns elements with refs like `@e1`,
+   `@e2`)
 3. Interact using refs from the snapshot
 4. Re-snapshot after navigation or significant DOM changes
 
@@ -111,8 +116,9 @@ agent-browser record stop                 # Stop and save video
 agent-browser record restart ./take2.webm # Stop current + start new recording
 ```
 
-Recording creates a fresh context but preserves cookies/storage from your session. If no URL is provided, it
-automatically returns to your current page. For smooth demos, explore first, then start recording.
+Recording creates a fresh context but preserves cookies/storage from your
+session. If no URL is provided, it automatically returns to your current page.
+For smooth demos, explore first, then start recording.
 
 ### Wait
 

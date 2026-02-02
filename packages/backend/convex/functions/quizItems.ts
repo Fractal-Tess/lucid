@@ -1,17 +1,20 @@
-import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
+import { v } from 'convex/values';
+
+import { mutation, query } from '../_generated/server';
 
 /**
  * List all quiz items for a generation
  */
 export const listByGeneration = query({
   args: {
-    generationId: v.id("generations"),
+    generationId: v.id('generations'),
   },
   handler: async (ctx, args) => {
     return await ctx.db
-      .query("quizItems")
-      .withIndex("by_generation", (q) => q.eq("generationId", args.generationId))
+      .query('quizItems')
+      .withIndex('by_generation', (q) =>
+        q.eq('generationId', args.generationId),
+      )
       .collect();
   },
 });
@@ -21,7 +24,7 @@ export const listByGeneration = query({
  */
 export const get = query({
   args: {
-    id: v.id("quizItems"),
+    id: v.id('quizItems'),
   },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
@@ -33,8 +36,8 @@ export const get = query({
  */
 export const create = mutation({
   args: {
-    generationId: v.id("generations"),
-    userId: v.id("users"),
+    generationId: v.id('generations'),
+    userId: v.id('users'),
     question: v.string(),
     options: v.array(v.string()),
     correctIndex: v.number(),
@@ -45,22 +48,22 @@ export const create = mutation({
     // Verify generation exists and is of type quiz
     const generation = await ctx.db.get(args.generationId);
     if (!generation) {
-      throw new Error("Generation not found");
+      throw new Error('Generation not found');
     }
-    if (generation.type !== "quiz") {
-      throw new Error("Generation is not a quiz generation");
+    if (generation.type !== 'quiz') {
+      throw new Error('Generation is not a quiz generation');
     }
 
     // Validate options and correctIndex
     if (args.options.length < 2) {
-      throw new Error("Quiz must have at least 2 options");
+      throw new Error('Quiz must have at least 2 options');
     }
     if (args.correctIndex < 0 || args.correctIndex >= args.options.length) {
-      throw new Error("Correct index is out of bounds");
+      throw new Error('Correct index is out of bounds');
     }
 
     const now = Date.now();
-    const id = await ctx.db.insert("quizItems", {
+    const id = await ctx.db.insert('quizItems', {
       generationId: args.generationId,
       userId: args.userId,
       question: args.question,
@@ -80,8 +83,8 @@ export const create = mutation({
  */
 export const createBatch = mutation({
   args: {
-    generationId: v.id("generations"),
-    userId: v.id("users"),
+    generationId: v.id('generations'),
+    userId: v.id('users'),
     items: v.array(
       v.object({
         question: v.string(),
@@ -95,10 +98,10 @@ export const createBatch = mutation({
     // Verify generation exists and is of type quiz
     const generation = await ctx.db.get(args.generationId);
     if (!generation) {
-      throw new Error("Generation not found");
+      throw new Error('Generation not found');
     }
-    if (generation.type !== "quiz") {
-      throw new Error("Generation is not a quiz generation");
+    if (generation.type !== 'quiz') {
+      throw new Error('Generation is not a quiz generation');
     }
 
     const now = Date.now();
@@ -116,7 +119,7 @@ export const createBatch = mutation({
         throw new Error(`Quiz item ${i} has correct index out of bounds`);
       }
 
-      const id = await ctx.db.insert("quizItems", {
+      const id = await ctx.db.insert('quizItems', {
         generationId: args.generationId,
         userId: args.userId,
         question: item.question,
@@ -138,7 +141,7 @@ export const createBatch = mutation({
  */
 export const update = mutation({
   args: {
-    id: v.id("quizItems"),
+    id: v.id('quizItems'),
     question: v.optional(v.string()),
     options: v.optional(v.array(v.string())),
     correctIndex: v.optional(v.number()),
@@ -147,7 +150,7 @@ export const update = mutation({
   handler: async (ctx, args) => {
     const existing = await ctx.db.get(args.id);
     if (!existing) {
-      throw new Error("Quiz item not found");
+      throw new Error('Quiz item not found');
     }
 
     const updates: {
@@ -163,7 +166,7 @@ export const update = mutation({
       updates.correctIndex = args.correctIndex;
       // Validate correctIndex if options are provided
       if (updates.options && updates.correctIndex >= updates.options.length) {
-        throw new Error("Correct index is out of bounds");
+        throw new Error('Correct index is out of bounds');
       }
     }
     if (args.explanation !== undefined) updates.explanation = args.explanation;
@@ -178,8 +181,8 @@ export const update = mutation({
  */
 export const reorder = mutation({
   args: {
-    generationId: v.id("generations"),
-    orderedIds: v.array(v.id("quizItems")),
+    generationId: v.id('generations'),
+    orderedIds: v.array(v.id('quizItems')),
   },
   handler: async (ctx, args) => {
     for (let i = 0; i < args.orderedIds.length; i++) {
@@ -203,12 +206,12 @@ export const reorder = mutation({
  */
 export const remove = mutation({
   args: {
-    id: v.id("quizItems"),
+    id: v.id('quizItems'),
   },
   handler: async (ctx, args) => {
     const existing = await ctx.db.get(args.id);
     if (!existing) {
-      throw new Error("Quiz item not found");
+      throw new Error('Quiz item not found');
     }
 
     await ctx.db.delete(args.id);

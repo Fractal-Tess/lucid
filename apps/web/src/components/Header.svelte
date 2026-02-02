@@ -25,7 +25,7 @@
                 href="/dashboard"
                 class="flex items-center gap-2 font-bold text-xl"
             >
-                Lucid
+                Alpha
             </a>
             <nav class="flex gap-4 text-sm font-medium">
                 {#each links as link (link.to)}

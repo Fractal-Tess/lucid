@@ -1,4 +1,4 @@
-import SectionSummary from "./section-summary.svelte";
+import SectionSummary from './section-summary.svelte';
 
 export { SectionSummary };
-export * from "./types";
+export * from './types';
