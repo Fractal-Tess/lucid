@@ -10,62 +10,73 @@
 	import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@alpha/ui/shadcn/dialog';
 	import { Tabs, TabsContent, TabsList, TabsTrigger } from '@alpha/ui/shadcn/tabs';
 	import { 
-		Folder, FileText, Upload, Plus, ChevronRight, 
-		MoreHorizontal, Brain, Sparkles, FileEdit, BookOpen,
+		FileText, Upload, Plus, ChevronRight, 
+		Brain, Sparkles, FileEdit, BookOpen,
 		ArrowLeft
 	} from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 
 	const client = useConvexClient();
-	const currentUser = useQuery(api.functions.users.getCurrentUser);
-	const subjectId = $derived($page.params.id);
+	const currentUser = useQuery(api.functions.users.getCurrentUser, {});
+	const folderId = $derived($page.params.id);
 	
-	const subject = useQuery(api.functions.subjects.get, () =>
-		subjectId ? { id: subjectId as Id<'subjects'> } : 'skip'
+	const folder = useQuery(api.functions.folders.get, () =>
+		folderId ? { id: folderId as Id<'folders'> } : 'skip'
 	);
-	const folders = useQuery(api.functions.folders.listBySubject, () =>
-		subjectId ? { subjectId: subjectId as Id<'subjects'> } : 'skip'
+	const folderWithPath = useQuery(api.functions.folders.getWithPath, () =>
+		folderId ? { id: folderId as Id<'folders'> } : 'skip'
 	);
-	const documents = useQuery(api.functions.documents.listBySubject, () =>
-		subjectId ? { subjectId: subjectId as Id<'subjects'> } : 'skip'
+	const subfolders = useQuery(api.functions.folders.listByParent, () =>
+		folderId ? { parentId: folderId as Id<'folders'> } : 'skip'
 	);
-	const generations = useQuery(api.functions.generations.listBySubject, () =>
-		subjectId ? { subjectId: subjectId as Id<'subjects'> } : 'skip'
+	const documents = useQuery(api.functions.documents.listByFolder, () =>
+		folderId ? { folderId: folderId as Id<'folders'> } : 'skip'
+	);
+	const generations = useQuery(api.functions.generations.listByFolder, () =>
+		folderId ? { folderId: folderId as Id<'folders'> } : 'skip'
 	);
 
-	let newFolderName = $state('');
-	let isCreatingFolder = $state(false);
+	let newSubfolderName = $state('');
+	let isCreatingSubfolder = $state(false);
 	let selectedDocsForGeneration = $state<string[]>([]);
 	let newGenerationName = $state('');
 	const GENERATION_TYPES = ['flashcards', 'quiz', 'notes', 'summary'] as const;
 	let newGenerationType = $state<typeof GENERATION_TYPES[number]>('flashcards');
 	let isCreatingGeneration = $state(false);
 
-	async function handleCreateFolder() {
-		if (!newFolderName.trim() || !subjectId || !currentUser.data?._id) return;
-		isCreatingFolder = true;
-		await client.mutation(api.functions.folders.create, { 
-			name: newFolderName.trim(),
-			userId: currentUser.data._id,
-			subjectId: subjectId as Id<'subjects'>
-		});
-		newFolderName = '';
-		isCreatingFolder = false;
+	async function handleCreateSubfolder() {
+		if (!newSubfolderName.trim() || !folderId) return;
+		isCreatingSubfolder = true;
+		try {
+			await client.mutation(api.functions.folders.create, { 
+				name: newSubfolderName.trim(),
+				parentId: folderId as Id<'folders'>
+			});
+			newSubfolderName = '';
+		} catch (error) {
+			console.error('Failed to create subfolder:', error);
+		} finally {
+			isCreatingSubfolder = false;
+		}
 	}
 
 	async function handleCreateGeneration() {
-		if (!newGenerationName.trim() || selectedDocsForGeneration.length === 0 || !subjectId || !currentUser.data?._id) return;
+		if (!newGenerationName.trim() || selectedDocsForGeneration.length === 0 || !folderId) return;
 		isCreatingGeneration = true;
-		await client.mutation(api.functions.generations.create, {
-			userId: currentUser.data._id,
-			subjectId: subjectId as Id<'subjects'>,
-			name: newGenerationName.trim(),
-			type: newGenerationType,
-			sourceDocumentIds: selectedDocsForGeneration as Id<'documents'>[]
-		});
-		newGenerationName = '';
-		selectedDocsForGeneration = [];
-		isCreatingGeneration = false;
+		try {
+			await client.mutation(api.functions.generations.create, {
+				folderId: folderId as Id<'folders'>,
+				name: newGenerationName.trim(),
+				type: newGenerationType,
+				sourceDocumentIds: selectedDocsForGeneration as Id<'documents'>[]
+			});
+			newGenerationName = '';
+			selectedDocsForGeneration = [];
+		} catch (error) {
+			console.error('Failed to create generation:', error);
+		} finally {
+			isCreatingGeneration = false;
+		}
 	}
 
 	function toggleDocSelection(docId: string) {
@@ -88,78 +99,88 @@
 </script>
 
 <div class="container mx-auto p-6">
-	<Button variant="ghost" class="mb-4" href="/subjects">
+	<Button variant="ghost" class="mb-4" href="/folders">
 		<ArrowLeft class="size-4 mr-2" />
-		Back to Subjects
+		Back to Files
 	</Button>
 
-	{#if subject.isLoading}
+	{#if folder.isLoading}
 		<div class="flex items-center justify-center py-12">
 			<p class="text-muted-foreground">Loading...</p>
 		</div>
-	{:else if subject.data}
+	{:else if folder.data}
 		<div class="mb-8">
+			{#if folderWithPath.data && folderWithPath.data.path.length > 1}
+				<div class="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+					{#each folderWithPath.data.path.slice(0, -1) as pathItem, i}
+						<a href="/folders/{pathItem.id}" class="hover:text-foreground">{pathItem.name}</a>
+						{#if i < folderWithPath.data.path.length - 2}
+							<span>/</span>
+						{/if}
+					{/each}
+				</div>
+			{/if}
 			<div class="flex items-center gap-3 mb-2">
-				<span class="text-4xl">{subject.data.icon || ''}</span>
-				<h1 class="text-3xl font-bold">{subject.data.name}</h1>
+				<FileText class="size-8 text-muted-foreground" />
+				<h1 class="text-3xl font-bold">{folder.data.name}</h1>
 			</div>
-			{#if subject.data.description}
-				<p class="text-muted-foreground">{subject.data.description}</p>
+			{#if folder.data.description}
+				<p class="text-muted-foreground">{folder.data.description}</p>
 			{/if}
 		</div>
 
-		<Tabs value="documents" class="w-full">
+		<Tabs value="contents" class="w-full">
 			<TabsList class="mb-6">
-				<TabsTrigger value="documents">Documents</TabsTrigger>
+				<TabsTrigger value="contents">Contents</TabsTrigger>
 				<TabsTrigger value="generations">Generations</TabsTrigger>
 			</TabsList>
 
-			<TabsContent value="documents" class="space-y-6">
+			<TabsContent value="contents" class="space-y-6">
 				<div class="flex gap-2">
-					<Button href="/documents/upload?subject={subjectId}">
+					<Button href="/documents/upload?folder={folderId}">
 						<Upload class="size-4 mr-2" />
 						Upload Document
 					</Button>
 					<Dialog>
 						<DialogTrigger>
 							<Button variant="outline">
-								<Folder class="size-4 mr-2" />
-								New Folder
+								<FileText class="size-4 mr-2" />
+								New Subfolder
 							</Button>
 						</DialogTrigger>
 						<DialogContent>
 							<DialogHeader>
-								<DialogTitle>Create Folder</DialogTitle>
+								<DialogTitle>Create Subfolder</DialogTitle>
 							</DialogHeader>
 							<div class="space-y-4 pt-4">
 								<div class="space-y-2">
-									<Label for="folder-name">Folder Name</Label>
-									<Input id="folder-name" placeholder="e.g., Lecture Notes" bind:value={newFolderName} />
+									<Label for="subfolder-name">Folder Name</Label>
+									<Input id="subfolder-name" placeholder="e.g., Lecture Notes" bind:value={newSubfolderName} />
 								</div>
-								<Button onclick={handleCreateFolder} disabled={isCreatingFolder || !newFolderName.trim()} class="w-full">
-									{isCreatingFolder ? 'Creating...' : 'Create Folder'}
+								<Button onclick={handleCreateSubfolder} disabled={isCreatingSubfolder || !newSubfolderName.trim()} class="w-full">
+									{isCreatingSubfolder ? 'Creating...' : 'Create Subfolder'}
 								</Button>
 							</div>
 						</DialogContent>
 					</Dialog>
 				</div>
 
-				{#if folders.data && folders.data.length > 0}
+				{#if subfolders.data && subfolders.data.length > 0}
 					<Card>
 						<CardHeader>
-							<CardTitle>Folders</CardTitle>
+							<CardTitle>Subfolders</CardTitle>
 						</CardHeader>
 						<CardContent>
 							<div class="grid gap-2">
-								{#each folders.data as folder}
+								{#each subfolders.data as subfolder}
 									<Button 
 										variant="ghost" 
 										class="justify-between h-auto py-3 px-4"
-										href="/folders/{folder._id}"
+										href="/folders/{subfolder._id}"
 									>
 										<div class="flex items-center gap-3">
-											<Folder class="size-5 text-muted-foreground" />
-											<span>{folder.name}</span>
+											<FileText class="size-5 text-muted-foreground" />
+											<span>{subfolder.name}</span>
 										</div>
 										<ChevronRight class="size-4 text-muted-foreground" />
 									</Button>
@@ -176,7 +197,7 @@
 						</CardHeader>
 						<CardContent>
 							<div class="grid gap-2">
-								{#each documents.data.filter((d) => !d.folderId) as doc}
+								{#each documents.data as doc}
 									<div class="flex items-center justify-between p-3 rounded-lg border">
 										<div class="flex items-center gap-3">
 											<FileText class="size-5 text-muted-foreground" />
@@ -199,7 +220,7 @@
 				{:else}
 					<div class="text-center py-12 border rounded-lg">
 						<p class="text-muted-foreground mb-4">No documents yet</p>
-						<Button href="/documents/upload?subject={subjectId}">
+						<Button href="/documents/upload?folder={folderId}">
 							<Upload class="size-4 mr-2" />
 							Upload Your First Document
 						</Button>
@@ -301,8 +322,8 @@
 		</Tabs>
 	{:else}
 		<div class="text-center py-12">
-			<p class="text-muted-foreground">Subject not found</p>
-			<Button href="/subjects" class="mt-4">Back to Subjects</Button>
+			<p class="text-muted-foreground">Folder not found</p>
+			<Button href="/folders" class="mt-4">Back to Files</Button>
 		</div>
 	{/if}
 </div>

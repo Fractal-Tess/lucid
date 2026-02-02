@@ -10,7 +10,7 @@
 	const recentGenerations = useQuery(api.functions.generations.list);
 	
 	const quickActions = [
-		{ label: 'New Subject', icon: BookOpen, href: '/subjects/new' },
+		{ label: 'New Folder', icon: FileText, href: '/folders' },
 		{ label: 'Upload Document', icon: FileText, href: '/documents/upload' },
 		{ label: 'Create Flashcards', icon: Brain, href: '/generations/new?type=flashcards' },
 		{ label: 'Generate Summary', icon: Sparkles, href: '/generations/new?type=summary' },

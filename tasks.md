@@ -65,7 +65,7 @@
 - [x] Summary generation from documents
 - [x] AI prompt for summarization
 - [x] Section-based summary display
-- [ ] Summary text editor
+- [x] Summary text editor (with section CRUD, drag-drop reordering)
 
 ### Notes
 

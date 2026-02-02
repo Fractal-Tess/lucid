@@ -135,7 +135,7 @@ export const getShareInfo = query({
 export const importSharedGeneration = mutation({
   args: {
     shareCode: v.string(),
-    targetSubjectId: v.id('subjects'),
+    targetFolderId: v.id('folders'),
   },
   handler: async (ctx, args) => {
     const userId = await getCurrentUserId(ctx);
@@ -161,18 +161,18 @@ export const importSharedGeneration = mutation({
       throw new Error('Source generation not found');
     }
 
-    const targetSubject = await ctx.db.get(args.targetSubjectId);
-    if (!targetSubject) {
-      throw new Error('Target subject not found');
+    const targetFolder = await ctx.db.get(args.targetFolderId);
+    if (!targetFolder) {
+      throw new Error('Target folder not found');
     }
-    if (targetSubject.userId !== userId) {
-      throw new Error('Target subject does not belong to user');
+    if (targetFolder.userId !== userId) {
+      throw new Error('Target folder does not belong to user');
     }
 
     const now = Date.now();
     const newGenerationId = await ctx.db.insert('generations', {
       userId,
-      subjectId: args.targetSubjectId,
+      folderId: args.targetFolderId,
       sourceDocumentIds: [],
       name: `${sourceGeneration.name} (Imported)`,
       type: sourceGeneration.type,

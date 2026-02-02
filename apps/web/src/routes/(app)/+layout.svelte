@@ -1,13 +1,19 @@
 <script lang="ts">
-	import { createSvelteAuthClient } from "@mmailaender/convex-better-auth-svelte/svelte";
-	import { authClient } from "$lib/auth-client";
 	import AppSidebar from "$lib/components/app-sidebar.svelte";
 	import * as Breadcrumb from "@alpha/ui/shadcn/breadcrumb";
 	import { Separator } from "@alpha/ui/shadcn/separator";
 	import * as Sidebar from "@alpha/ui/shadcn/sidebar";
+	import { useConvexClient } from "convex-svelte";
+	import { api } from "@alpha/backend/convex/_generated/api";
 
 	const { children } = $props();
-	createSvelteAuthClient({ authClient });
+	const client = useConvexClient();
+
+	$effect(() => {
+		// Store user in Convex DB if not exists (sync with Better Auth)
+		// This is a fire-and-forget operation
+		client.mutation(api.functions.users.store, {}).catch(console.error);
+	});
 </script>
 
 <div class="h-svh">

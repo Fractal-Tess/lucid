@@ -23,18 +23,6 @@ export const list = query({
   },
 });
 
-export const listBySubject = query({
-  args: {
-    subjectId: v.id('subjects'),
-  },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query('documents')
-      .withIndex('by_subject', (q) => q.eq('subjectId', args.subjectId))
-      .collect();
-  },
-});
-
 export const listByFolder = query({
   args: {
     folderId: v.optional(v.id('folders')),
@@ -44,6 +32,20 @@ export const listByFolder = query({
       .query('documents')
       .withIndex('by_folder', (q) => q.eq('folderId', args.folderId))
       .collect();
+  },
+});
+
+export const listRoot = query({
+  args: {
+    userId: v.id('users'),
+  },
+  handler: async (ctx, args) => {
+    const allDocs = await ctx.db
+      .query('documents')
+      .withIndex('by_user', (q) => q.eq('userId', args.userId))
+      .collect();
+
+    return allDocs.filter((d) => d.folderId === undefined);
   },
 });
 
@@ -78,7 +80,6 @@ export const generateUploadUrl = mutation({
 export const create = mutation({
   args: {
     userId: v.id('users'),
-    subjectId: v.id('subjects'),
     folderId: v.optional(v.id('folders')),
     name: v.string(),
     storageId: v.id('_storage'),
@@ -94,13 +95,12 @@ export const create = mutation({
 
     if (!ALLOWED_MIME_TYPES.includes(args.mimeType)) {
       throw new Error(
-        `Invalid file type: ${args.mimeType}. Allowed: PDF, DOC, DOCX`,
+        `Invalid file type: ${args.mimeType}. Allowed: PDF, DOC, DOCX, JPG, PNG, GIF, WEBP`,
       );
     }
 
     const id = await ctx.db.insert('documents', {
       userId: args.userId,
-      subjectId: args.subjectId,
       folderId: args.folderId,
       name: args.name,
       storageId: args.storageId,

@@ -11,20 +11,28 @@
 	import { Upload, File as FileIcon, X, ArrowLeft } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 
-	const subjectIdParam = $derived($page.url.searchParams.get('subject') || '');
+	const folderIdParam = $derived($page.url.searchParams.get('folder') || '');
 	
 	const convex = useConvexClient();
 	const currentUser = useQuery(api.functions.users.getCurrentUser);
-	const subjects = useQuery(api.functions.subjects.list);
+	const folders = useQuery(api.functions.folders.listRoot);
 
 	let selectedFile = $state<File | null>(null);
-	let selectedSubjectId = $state(subjectIdParam);
+	let selectedFolderId = $state(folderIdParam);
 	let isUploading = $state(false);
 	let uploadProgress = $state(0);
 	let error = $state('');
 
 	const MAX_FILE_SIZE = 20 * 1024 * 1024;
-	const ALLOWED_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+	const ALLOWED_TYPES = [
+		'application/pdf', 
+		'application/msword', 
+		'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+		'image/jpeg',
+		'image/png',
+		'image/gif',
+		'image/webp'
+	];
 
 	function handleFileSelect(e: Event) {
 		const input = e.target as HTMLInputElement;
@@ -35,7 +43,7 @@
 				return;
 			}
 			if (!ALLOWED_TYPES.includes(file.type)) {
-				error = 'Only PDF, DOC, and DOCX files are allowed';
+				error = 'Only PDF, DOC, DOCX, JPG, PNG, GIF, and WEBP files are allowed';
 				return;
 			}
 			error = '';
@@ -49,7 +57,7 @@
 	}
 
 	async function handleUpload() {
-		if (!selectedFile || !selectedSubjectId) return;
+		if (!selectedFile) return;
 		
 		isUploading = true;
 		uploadProgress = 0;
@@ -72,7 +80,7 @@
 					if (selectedFile && currentUser.data?._id) {
 						await convex.mutation(api.functions.documents.create, {
 							userId: currentUser.data._id,
-							subjectId: selectedSubjectId as Id<'subjects'>,
+							folderId: selectedFolderId ? selectedFolderId as Id<'folders'> : undefined,
 							name: selectedFile.name,
 							storageId,
 							mimeType: selectedFile.type,
@@ -80,7 +88,7 @@
 						});
 					}
 					
-					goto(`/subjects/${selectedSubjectId}`);
+					goto(selectedFolderId ? `/folders/${selectedFolderId}` : '/folders');
 				} else {
 					error = 'Upload failed. Please try again.';
 					isUploading = false;
@@ -104,7 +112,7 @@
 </script>
 
 <div class="container mx-auto p-6 max-w-2xl">
-	<Button variant="ghost" class="mb-4" href={selectedSubjectId ? `/subjects/${selectedSubjectId}` : '/subjects'}>
+	<Button variant="ghost" class="mb-4" href={selectedFolderId ? `/folders/${selectedFolderId}` : '/folders'}>
 		<ArrowLeft class="size-4 mr-2" />
 		Back
 	</Button>
@@ -112,21 +120,21 @@
 	<Card>
 		<CardHeader>
 			<CardTitle>Upload Document</CardTitle>
-			<CardDescription>Upload PDF, DOC, or DOCX files up to 20MB</CardDescription>
+			<CardDescription>Upload PDF, DOC, DOCX, or Image files up to 20MB</CardDescription>
 		</CardHeader>
 		<CardContent class="space-y-6">
 			<div class="space-y-2">
-				<Label for="subject">Subject</Label>
+				<Label for="folder">Folder (Optional)</Label>
 				<select 
-					id="subject" 
-					bind:value={selectedSubjectId}
+					id="folder" 
+					bind:value={selectedFolderId}
 					class="w-full rounded-md border border-input bg-background px-3 py-2"
 					disabled={isUploading}
 				>
-					<option value="">Select a subject</option>
-					{#if subjects.data}
-						{#each subjects.data as subject}
-							<option value={subject._id}>{subject.name}</option>
+					<option value="">No folder (root level)</option>
+					{#if folders.data}
+						{#each folders.data as folder}
+							<option value={folder._id}>{folder.name}</option>
 						{/each}
 					{/if}
 				</select>
@@ -145,13 +153,13 @@
 						<p class="mb-2 text-sm text-muted-foreground">
 							<span class="font-semibold">Click to upload</span> or drag and drop
 						</p>
-						<p class="text-xs text-muted-foreground">PDF, DOC, DOCX up to 20MB</p>
+						<p class="text-xs text-muted-foreground">PDF, DOC, DOCX, JPG, PNG up to 20MB</p>
 					</div>
 					<input 
 						id="file-upload" 
 						type="file" 
 						class="hidden" 
-						accept=".pdf,.doc,.docx"
+						accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.webp"
 						onchange={handleFileSelect}
 						disabled={isUploading}
 					/>
@@ -186,7 +194,7 @@
 
 			<Button 
 				class="w-full" 
-				disabled={!selectedFile || !selectedSubjectId || isUploading}
+				disabled={!selectedFile || isUploading}
 				onclick={handleUpload}
 			>
 				{isUploading ? 'Uploading...' : 'Upload Document'}

@@ -15,6 +15,7 @@ const config = {
     alias: {
       '@lib': '../../packages/ui/src/lib',
       '@lib/*': '../../packages/ui/src/lib/*',
+      $convex: '../../packages/backend/convex',
     },
   },
 };

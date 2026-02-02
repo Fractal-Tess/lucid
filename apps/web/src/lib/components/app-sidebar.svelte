@@ -23,19 +23,9 @@
 				isActive: true,
 			},
 			{
-				title: "Subjects",
-				url: "/subjects",
-				icon: LibraryIcon,
-				items: [
-					{
-						title: "All Subjects",
-						url: "/subjects",
-					},
-					{
-						title: "New Subject",
-						url: "/subjects/new",
-					},
-				],
+				title: "Files",
+				url: "/folders",
+				icon: FileTextIcon,
 			},
 			{
 				title: "Study Materials",

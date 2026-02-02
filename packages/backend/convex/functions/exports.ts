@@ -24,31 +24,31 @@ async function getCurrentUserId(ctx: QueryCtx): Promise<Id<'users'> | null> {
   return user?._id ?? null;
 }
 
-interface FlashcardExport {
+type FlashcardExport = {
   question: string;
   answer: string;
   easeFactor: number;
   interval: number;
   repetitions: number;
   nextReview: number;
-}
+};
 
-interface QuizExport {
+type QuizExport = {
   question: string;
   options: string[];
   correctIndex: number;
   explanation?: string;
-}
+};
 
-interface NotesExport {
+type NotesExport = {
   content: string;
   keyPoints: string[];
-}
+};
 
-interface SummaryExport {
+type SummaryExport = {
   content: string;
   sections: Array<{ title: string; content: string }>;
-}
+};
 
 export const exportFlashcardsJSON = query({
   args: {
@@ -281,9 +281,9 @@ export const exportSummaryMarkdown = query({
   },
 });
 
-export const exportSubjectGenerations = query({
+export const exportFolderGenerations = query({
   args: {
-    subjectId: v.id('subjects'),
+    folderId: v.id('folders'),
   },
   handler: async (ctx, args) => {
     const userId = await getCurrentUserId(ctx);
@@ -291,22 +291,22 @@ export const exportSubjectGenerations = query({
       throw new Error('Not authenticated');
     }
 
-    const subject = await ctx.db.get(args.subjectId);
-    if (!subject) {
-      throw new Error('Subject not found');
+    const folder = await ctx.db.get(args.folderId);
+    if (!folder) {
+      throw new Error('Folder not found');
     }
-    if (subject.userId !== userId) {
-      throw new Error('Subject does not belong to user');
+    if (folder.userId !== userId) {
+      throw new Error('Folder does not belong to user');
     }
 
     const generations = await ctx.db
       .query('generations')
-      .withIndex('by_subject', (q) => q.eq('subjectId', args.subjectId))
+      .withIndex('by_folder', (q) => q.eq('folderId', args.folderId))
       .collect();
 
     const exportData: Record<string, unknown> = {
-      subject: {
-        name: subject.name,
+      folder: {
+        name: folder.name,
         exportedAt: Date.now(),
       },
       generations: [],

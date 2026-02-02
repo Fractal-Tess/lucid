@@ -11,51 +11,29 @@ export default defineSchema({
   }).index('by_better_auth_id', ['betterAuthId']),
 
   // ============================================
-  // ORGANIZATION HIERARCHY
-  // SubjectGroup → Subject → Folder → Document
+  // FILE SYSTEM HIERARCHY
+  // Folders (with nesting) → Documents
   // ============================================
 
-  // Top-level grouping (e.g., "Fall 2024", "Spring 2025")
-  subjectGroups: defineTable({
+  // Folders are the primary organizational unit
+  // Can be nested (parentId) for infinite depth
+  folders: defineTable({
     userId: v.id('users'),
-    name: v.string(),
-    description: v.optional(v.string()),
-    color: v.optional(v.string()), // For UI theming
-    order: v.number(), // Display order
-    createdAt: v.number(),
-  }).index('by_user', ['userId']),
-
-  // Subjects within groups (e.g., "Calculus 101", "Physics 201")
-  subjects: defineTable({
-    userId: v.id('users'),
-    groupId: v.optional(v.id('subjectGroups')), // Optional: can be ungrouped
+    parentId: v.optional(v.id('folders')), // For nested folders
     name: v.string(),
     description: v.optional(v.string()),
     icon: v.optional(v.string()), // Emoji or icon name
-    color: v.optional(v.string()),
-    order: v.number(),
+    color: v.optional(v.string()), // For UI theming
+    order: v.number(), // Display order within parent
     createdAt: v.number(),
   })
     .index('by_user', ['userId'])
-    .index('by_group', ['groupId']),
-
-  // Folders within subjects (optional organization layer)
-  folders: defineTable({
-    userId: v.id('users'),
-    subjectId: v.id('subjects'),
-    parentId: v.optional(v.id('folders')), // Nested folders support
-    name: v.string(),
-    order: v.number(),
-    createdAt: v.number(),
-  })
-    .index('by_subject', ['subjectId'])
     .index('by_parent', ['parentId']),
 
-  // Documents belong to a subject, optionally in a folder
+  // Documents belong to a folder (optional - can be at root)
   documents: defineTable({
     userId: v.id('users'),
-    subjectId: v.id('subjects'),
-    folderId: v.optional(v.id('folders')),
+    folderId: v.optional(v.id('folders')), // Optional: can be at root level
     name: v.string(),
     storageId: v.id('_storage'),
     mimeType: v.string(),
@@ -71,7 +49,6 @@ export default defineSchema({
     createdAt: v.number(),
   })
     .index('by_user', ['userId'])
-    .index('by_subject', ['subjectId'])
     .index('by_folder', ['folderId']),
 
   // ============================================
@@ -79,10 +56,10 @@ export default defineSchema({
   // Appear in file tree alongside documents
   // ============================================
 
-  // Generations live in a virtual "Generations" folder per subject
+  // Generations live in a folder
   generations: defineTable({
     userId: v.id('users'),
-    subjectId: v.id('subjects'),
+    folderId: v.id('folders'), // Which folder contains this generation
     sourceDocumentIds: v.array(v.id('documents')), // Which files were used
 
     name: v.string(),
@@ -106,7 +83,7 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index('by_user', ['userId'])
-    .index('by_subject', ['subjectId'])
+    .index('by_folder', ['folderId'])
     .index('by_type', ['userId', 'type'])
     .index('by_source_doc', ['sourceDocumentIds']), // Filter by source document
 

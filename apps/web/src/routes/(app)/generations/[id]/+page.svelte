@@ -7,9 +7,11 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '@alpha/ui/shadcn/card';
 	import { Badge } from '@alpha/ui/shadcn/badge';
 	import { Tabs, TabsContent, TabsList, TabsTrigger } from '@alpha/ui/shadcn/tabs';
+	import SummaryEditor from '@alpha/ui/shadcn/summary-editor';
+	import type { EditableSummarySection } from '@alpha/ui/shadcn/summary-editor';
 	import { 
 		Brain, BookOpen, FileEdit, Sparkles, ArrowLeft, 
-		Loader2, RefreshCw, FileText
+		Loader2, RefreshCw, FileText, Pencil, Eye
 	} from '@lucide/svelte';
 	import { goto } from '$app/navigation';
 
@@ -30,9 +32,106 @@
 		isValidId ? { generationId: generationId as Id<'generations'> } : 'skip'
 	);
 
+	let isEditMode = $state(false);
+	let isSaving = $state(false);
+	let editedSections = $state<EditableSummarySection[]>([]);
+	let editedContent = $state('');
+
+	$effect(() => {
+		if (summaryContent.data && !isEditMode) {
+			editedSections = summaryContent.data.sections.map((s, i) => ({
+				id: `section-${i}`,
+				title: s.title,
+				content: s.content,
+				order: i
+			}));
+			editedContent = summaryContent.data.content;
+		}
+	});
+
 	async function handleRetry() {
 		if (generation.data?.type === 'flashcards' && generationId) {
 			await client.action(api.workflows.generateFlashcards.retryGeneration, { generationId: generationId as Id<'generations'> });
+		}
+	}
+
+	function toggleEditMode() {
+		if (isEditMode) {
+			isEditMode = false;
+		} else {
+			if (summaryContent.data) {
+				editedSections = summaryContent.data.sections.map((s, i) => ({
+					id: `section-${i}`,
+					title: s.title,
+					content: s.content,
+					order: i
+				}));
+				editedContent = summaryContent.data.content;
+			}
+			isEditMode = true;
+		}
+	}
+
+	function handleCreateSection(section: { title: string; content: string }) {
+		const newId = `section-${Date.now()}`;
+		const maxOrder = editedSections.length > 0 
+			? Math.max(...editedSections.map(s => s.order)) 
+			: -1;
+		editedSections = [...editedSections, {
+			id: newId,
+			title: section.title,
+			content: section.content,
+			order: maxOrder + 1
+		}];
+	}
+
+	function handleUpdateSection(id: string, section: { title: string; content: string }) {
+		editedSections = editedSections.map(s => 
+			s.id === id ? { ...s, title: section.title, content: section.content } : s
+		);
+	}
+
+	function handleDeleteSection(id: string) {
+		editedSections = editedSections.filter(s => s.id !== id);
+	}
+
+	function handleReorderSections(orderedIds: string[]) {
+		const sectionMap = new Map(editedSections.map(s => [s.id, s]));
+		editedSections = orderedIds.map((id, index) => ({
+			...sectionMap.get(id)!,
+			order: index
+		}));
+	}
+
+	async function handleSaveSummary() {
+		if (!summaryContent.data?._id) return;
+		
+		isSaving = true;
+		try {
+			await client.mutation(api.functions.summaryItems.update, {
+				id: summaryContent.data._id,
+				content: editedContent,
+				sections: editedSections.map(s => ({
+					title: s.title,
+					content: s.content
+				}))
+			});
+			isEditMode = false;
+		} finally {
+			isSaving = false;
+		}
+	}
+
+	function handleCancelEdit() {
+		isEditMode = false;
+		if (summaryContent.data) {
+			editedSections = summaryContent.data.sections.map((s, i) => ({
+				id: `section-${i}`,
+				title: s.title,
+				content: s.content,
+				order: i
+			}));
+			editedContent = summaryContent.data.content;
 		}
 	}
 
@@ -159,28 +258,66 @@
 			{:else if generation.data.type === 'summary' && summaryContent.data}
 				<Card>
 					<CardHeader>
-						<CardTitle>Summary</CardTitle>
+						<div class="flex items-center justify-between">
+							<CardTitle>Summary</CardTitle>
+							<Button
+								variant="outline"
+								size="sm"
+								onclick={toggleEditMode}
+								disabled={isSaving}
+							>
+								{#if isEditMode}
+									<Eye class="size-4 mr-2" />
+									View Mode
+								{:else}
+									<Pencil class="size-4 mr-2" />
+									Edit
+								{/if}
+							</Button>
+						</div>
 					</CardHeader>
 					<CardContent class="space-y-6">
-						<div class="prose max-w-none">
-							<h3 class="text-lg font-semibold">Overview</h3>
-							<p class="text-muted-foreground">{summaryContent.data.content}</p>
-						</div>
-						
-						{#if summaryContent.data.sections.length > 0}
-							<div class="space-y-4">
-								<h3 class="text-lg font-semibold">Sections</h3>
-								{#each summaryContent.data.sections as section}
-									<Card>
-										<CardHeader>
-											<CardTitle class="text-base">{section.title}</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<p class="text-muted-foreground">{section.content}</p>
-										</CardContent>
-									</Card>
-								{/each}
+						{#if isEditMode}
+							<div class="mb-4">
+								<label for="overview-content" class="text-sm font-medium mb-2 block">Overview</label>
+								<textarea
+									id="overview-content"
+									class="w-full min-h-[120px] p-3 rounded-md border bg-background text-sm resize-y"
+									bind:value={editedContent}
+									disabled={isSaving}
+								></textarea>
 							</div>
+							<SummaryEditor
+								sections={editedSections}
+								isSaving={isSaving}
+								onCreate={handleCreateSection}
+								onUpdate={handleUpdateSection}
+								onDelete={handleDeleteSection}
+								onReorder={handleReorderSections}
+								onSave={handleSaveSummary}
+								onCancel={handleCancelEdit}
+							/>
+						{:else}
+							<div class="prose max-w-none">
+								<h3 class="text-lg font-semibold">Overview</h3>
+								<p class="text-muted-foreground">{summaryContent.data.content}</p>
+							</div>
+							
+							{#if summaryContent.data.sections.length > 0}
+								<div class="space-y-4">
+									<h3 class="text-lg font-semibold">Sections</h3>
+									{#each summaryContent.data.sections as section}
+										<Card>
+											<CardHeader>
+												<CardTitle class="text-base">{section.title}</CardTitle>
+											</CardHeader>
+											<CardContent>
+												<p class="text-muted-foreground">{section.content}</p>
+											</CardContent>
+										</Card>
+									{/each}
+								</div>
+							{/if}
 						{/if}
 					</CardContent>
 				</Card>

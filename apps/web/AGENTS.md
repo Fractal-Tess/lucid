@@ -21,7 +21,7 @@ src/
 │   ├── +page.svelte
 │   ├── auth/
 │   ├── dashboard/
-│   ├── subjects/
+│   ├── folders/
 │   ├── generations/
 │   └── documents/
 ├── lib/

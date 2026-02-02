@@ -1,18 +1,58 @@
+import type { Id } from '../_generated/dataModel';
+
 import { v } from 'convex/values';
 
-import { mutation, query } from '../_generated/server';
+import { mutation, query, type QueryCtx } from '../_generated/server';
+import { authComponent } from '../auth';
 
-export const listBySubject = query({
+async function getCurrentUserId(ctx: QueryCtx): Promise<Id<'users'> | null> {
+  try {
+    const authUser = await authComponent.getAuthUser(ctx);
+    if (!authUser) return null;
+
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_better_auth_id', (q) => q.eq('betterAuthId', authUser._id))
+      .first();
+
+    return user?._id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export const list = query({
   args: {
-    subjectId: v.id('subjects'),
+    userId: v.optional(v.id('users')),
   },
   handler: async (ctx, args) => {
+    const userId = args.userId ?? (await getCurrentUserId(ctx));
+    if (!userId) return [];
+
     const folders = await ctx.db
       .query('folders')
-      .withIndex('by_subject', (q) => q.eq('subjectId', args.subjectId))
+      .withIndex('by_user', (q) => q.eq('userId', userId))
       .collect();
 
     return folders.sort((a, b) => a.order - b.order);
+  },
+});
+
+export const listRoot = query({
+  args: {
+    userId: v.optional(v.id('users')),
+  },
+  handler: async (ctx, args) => {
+    const userId = args.userId ?? (await getCurrentUserId(ctx));
+    if (!userId) return [];
+
+    const allFolders = await ctx.db
+      .query('folders')
+      .withIndex('by_user', (q) => q.eq('userId', userId))
+      .collect();
+
+    const rootFolders = allFolders.filter((f) => f.parentId === undefined);
+    return rootFolders.sort((a, b) => a.order - b.order);
   },
 });
 
@@ -27,21 +67,6 @@ export const listByParent = query({
       .collect();
 
     return folders.sort((a, b) => a.order - b.order);
-  },
-});
-
-export const listRootFolders = query({
-  args: {
-    subjectId: v.id('subjects'),
-  },
-  handler: async (ctx, args) => {
-    const allFolders = await ctx.db
-      .query('folders')
-      .withIndex('by_subject', (q) => q.eq('subjectId', args.subjectId))
-      .collect();
-
-    const rootFolders = allFolders.filter((f) => f.parentId === undefined);
-    return rootFolders.sort((a, b) => a.order - b.order);
   },
 });
 
@@ -85,30 +110,35 @@ export const getWithPath = query({
 
 export const create = mutation({
   args: {
-    userId: v.id('users'),
-    subjectId: v.id('subjects'),
     parentId: v.optional(v.id('folders')),
     name: v.string(),
+    description: v.optional(v.string()),
+    icon: v.optional(v.string()),
+    color: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const userId = await getCurrentUserId(ctx);
+    if (!userId) {
+      throw new Error('Unauthorized: User not authenticated');
+    }
+
     const siblingFolders = await ctx.db
       .query('folders')
       .withIndex('by_parent', (q) => q.eq('parentId', args.parentId))
       .collect();
 
-    const sameSubjectSiblings = siblingFolders.filter(
-      (f) => f.subjectId === args.subjectId,
-    );
-    const maxOrder = sameSubjectSiblings.reduce(
+    const maxOrder = siblingFolders.reduce(
       (max, f) => Math.max(max, f.order),
       -1,
     );
 
     const id = await ctx.db.insert('folders', {
-      userId: args.userId,
-      subjectId: args.subjectId,
+      userId,
       parentId: args.parentId,
       name: args.name,
+      description: args.description,
+      icon: args.icon,
+      color: args.color,
       order: maxOrder + 1,
       createdAt: Date.now(),
     });
@@ -121,6 +151,9 @@ export const update = mutation({
   args: {
     id: v.id('folders'),
     name: v.optional(v.string()),
+    description: v.optional(v.string()),
+    icon: v.optional(v.string()),
+    color: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
@@ -132,6 +165,10 @@ export const update = mutation({
 
     const filteredUpdates: Record<string, unknown> = {};
     if (updates.name !== undefined) filteredUpdates.name = updates.name;
+    if (updates.description !== undefined)
+      filteredUpdates.description = updates.description;
+    if (updates.icon !== undefined) filteredUpdates.icon = updates.icon;
+    if (updates.color !== undefined) filteredUpdates.color = updates.color;
 
     await ctx.db.patch(id, filteredUpdates);
     return id;
@@ -238,10 +275,7 @@ export const move = mutation({
       .withIndex('by_parent', (q) => q.eq('parentId', args.newParentId))
       .collect();
 
-    const sameSubjectSiblings = targetSiblings.filter(
-      (f) => f.subjectId === folder.subjectId,
-    );
-    const maxOrder = sameSubjectSiblings.reduce(
+    const maxOrder = targetSiblings.reduce(
       (max, f) => Math.max(max, f.order),
       -1,
     );
@@ -252,5 +286,42 @@ export const move = mutation({
     });
 
     return args.id;
+  },
+});
+
+export const getFileSystem = query({
+  args: {
+    userId: v.optional(v.id('users')),
+  },
+  handler: async (ctx, args) => {
+    const userId = args.userId ?? (await getCurrentUserId(ctx));
+    if (!userId) {
+      return {
+        folders: [],
+        documents: [],
+        generations: [],
+      };
+    }
+
+    const folders = await ctx.db
+      .query('folders')
+      .withIndex('by_user', (q) => q.eq('userId', userId))
+      .collect();
+
+    const documents = await ctx.db
+      .query('documents')
+      .withIndex('by_user', (q) => q.eq('userId', userId))
+      .collect();
+
+    const generations = await ctx.db
+      .query('generations')
+      .withIndex('by_user', (q) => q.eq('userId', userId))
+      .collect();
+
+    return {
+      folders: folders.sort((a, b) => a.order - b.order),
+      documents: documents.sort((a, b) => b.createdAt - a.createdAt),
+      generations: generations.sort((a, b) => b.createdAt - a.createdAt),
+    };
   },
 });

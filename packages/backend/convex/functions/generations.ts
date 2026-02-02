@@ -5,9 +5,6 @@ import { v } from 'convex/values';
 import { mutation, query, type QueryCtx } from '../_generated/server';
 import { authComponent } from '../auth';
 
-/**
- * Generation type values for validation
- */
 const generationType = v.union(
   v.literal('flashcards'),
   v.literal('quiz'),
@@ -17,18 +14,12 @@ const generationType = v.union(
   v.literal('concept_map'),
 );
 
-/**
- * Generation status values for validation
- */
 const generationStatus = v.union(
   v.literal('generating'),
   v.literal('ready'),
   v.literal('failed'),
 );
 
-/**
- * Get the current user's ID from our users table
- */
 async function getCurrentUserId(ctx: QueryCtx): Promise<Id<'users'> | null> {
   let authUser;
   try {
@@ -48,9 +39,6 @@ async function getCurrentUserId(ctx: QueryCtx): Promise<Id<'users'> | null> {
   return user?._id ?? null;
 }
 
-/**
- * List all generations for the current user
- */
 export const list = query({
   args: {},
   handler: async (ctx) => {
@@ -65,24 +53,18 @@ export const list = query({
   },
 });
 
-/**
- * List generations by subject
- */
-export const listBySubject = query({
+export const listByFolder = query({
   args: {
-    subjectId: v.id('subjects'),
+    folderId: v.id('folders'),
   },
   handler: async (ctx, args) => {
     return await ctx.db
       .query('generations')
-      .withIndex('by_subject', (q) => q.eq('subjectId', args.subjectId))
+      .withIndex('by_folder', (q) => q.eq('folderId', args.folderId))
       .collect();
   },
 });
 
-/**
- * List generations by type for a user
- */
 export const listByType = query({
   args: {
     userId: v.id('users'),
@@ -98,9 +80,6 @@ export const listByType = query({
   },
 });
 
-/**
- * Get a single generation by ID
- */
 export const get = query({
   args: {
     id: v.id('generations'),
@@ -110,25 +89,25 @@ export const get = query({
   },
 });
 
-/**
- * Create a new generation
- */
 export const create = mutation({
   args: {
-    userId: v.id('users'),
-    subjectId: v.id('subjects'),
+    folderId: v.id('folders'),
     sourceDocumentIds: v.array(v.id('documents')),
     name: v.string(),
     type: generationType,
   },
   handler: async (ctx, args) => {
-    // Validate that all source documents exist and belong to user
+    const userId = await getCurrentUserId(ctx);
+    if (!userId) {
+      throw new Error('Unauthorized: User not authenticated');
+    }
+
     for (const docId of args.sourceDocumentIds) {
       const doc = await ctx.db.get(docId);
       if (!doc) {
         throw new Error(`Document not found: ${docId}`);
       }
-      if (doc.userId !== args.userId) {
+      if (doc.userId !== userId) {
         throw new Error('Document does not belong to user');
       }
       if (doc.status !== 'ready') {
@@ -138,8 +117,8 @@ export const create = mutation({
 
     const now = Date.now();
     const id = await ctx.db.insert('generations', {
-      userId: args.userId,
-      subjectId: args.subjectId,
+      userId,
+      folderId: args.folderId,
       sourceDocumentIds: args.sourceDocumentIds,
       name: args.name,
       type: args.type,
@@ -152,9 +131,6 @@ export const create = mutation({
   },
 });
 
-/**
- * Update generation status
- */
 export const updateStatus = mutation({
   args: {
     id: v.id('generations'),
@@ -185,9 +161,6 @@ export const updateStatus = mutation({
   },
 });
 
-/**
- * Update generation name
- */
 export const update = mutation({
   args: {
     id: v.id('generations'),
@@ -212,9 +185,6 @@ export const update = mutation({
   },
 });
 
-/**
- * Remove a generation and its associated content
- */
 export const remove = mutation({
   args: {
     id: v.id('generations'),
@@ -225,7 +195,6 @@ export const remove = mutation({
       throw new Error('Generation not found');
     }
 
-    // Delete associated content based on type
     if (existing.type === 'flashcards') {
       const flashcardItems = await ctx.db
         .query('flashcardItems')

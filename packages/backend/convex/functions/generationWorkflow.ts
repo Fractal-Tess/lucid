@@ -40,7 +40,7 @@ async function getCurrentUserId(ctx: QueryCtx): Promise<Id<'users'> | null> {
 
 export const startGeneration = mutation({
   args: {
-    subjectId: v.id('subjects'),
+    folderId: v.id('folders'),
     sourceDocumentIds: v.array(v.id('documents')),
     type: generationType,
     name: v.string(),
@@ -51,12 +51,12 @@ export const startGeneration = mutation({
       throw new Error('Not authenticated');
     }
 
-    const subject = await ctx.db.get(args.subjectId);
-    if (!subject) {
-      throw new Error('Subject not found');
+    const folder = await ctx.db.get(args.folderId);
+    if (!folder) {
+      throw new Error('Folder not found');
     }
-    if (subject.userId !== userId) {
-      throw new Error('Subject does not belong to user');
+    if (folder.userId !== userId) {
+      throw new Error('Folder does not belong to user');
     }
 
     for (const docId of args.sourceDocumentIds) {
@@ -75,7 +75,7 @@ export const startGeneration = mutation({
     const now = Date.now();
     const generationId = await ctx.db.insert('generations', {
       userId,
-      subjectId: args.subjectId,
+      folderId: args.folderId,
       sourceDocumentIds: args.sourceDocumentIds,
       name: args.name,
       type: args.type,

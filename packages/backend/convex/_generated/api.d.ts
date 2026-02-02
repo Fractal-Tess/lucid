@@ -22,8 +22,6 @@ import type * as functions_quizItems from "../functions/quizItems.js";
 import type * as functions_sharing from "../functions/sharing.js";
 import type * as functions_streaks from "../functions/streaks.js";
 import type * as functions_studySessions from "../functions/studySessions.js";
-import type * as functions_subjectGroups from "../functions/subjectGroups.js";
-import type * as functions_subjects from "../functions/subjects.js";
 import type * as functions_summaryItems from "../functions/summaryItems.js";
 import type * as functions_users from "../functions/users.js";
 import type * as healthCheck from "../healthCheck.js";
@@ -57,8 +55,6 @@ declare const fullApi: ApiFromModules<{
   "functions/sharing": typeof functions_sharing;
   "functions/streaks": typeof functions_streaks;
   "functions/studySessions": typeof functions_studySessions;
-  "functions/subjectGroups": typeof functions_subjectGroups;
-  "functions/subjects": typeof functions_subjects;
   "functions/summaryItems": typeof functions_summaryItems;
   "functions/users": typeof functions_users;
   healthCheck: typeof healthCheck;

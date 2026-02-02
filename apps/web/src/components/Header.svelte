@@ -8,7 +8,7 @@
 
     const links = [
         { to: "/dashboard", label: "Dashboard" },
-        { to: "/subjects", label: "Subjects" },
+        { to: "/folders", label: "Files" },
         { to: "/generations", label: "Generations" },
     ];
 
